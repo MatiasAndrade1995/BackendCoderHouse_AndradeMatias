@@ -1,0 +1,133 @@
+[
+    {
+        "id": 1,
+        "title": "Naranja",
+        "description": "Fruta",
+        "code": "code100",
+        "price": 125,
+        "status": true,
+        "stock": 20000,
+        "category": "Fruta",
+        "thumbnail": [
+            "http://localhost:8080/storage/products/naranja.jpg"
+        ]
+    },
+    {
+        "id": 2,
+        "title": "Manzana",
+        "description": "Fruta",
+        "code": "code101",
+        "price": 150,
+        "status": true,
+        "stock": 20,
+        "category": "Fruta",
+        "thumbnail": [
+            "http://localhost:8080/storage/products/manzana.jpg"
+        ]
+    },
+    {
+        "id": 3,
+        "title": "Pera",
+        "description": "Fruta",
+        "code": "code102",
+        "price": 175,
+        "status": true,
+        "stock": 20,
+        "category": "Fruta",
+        "thumbnail": [
+            "http://localhost:8080/storage/products/pera.jpg"
+        ]
+    },
+    {
+        "id": 4,
+        "title": "Banana",
+        "description": "Fruta",
+        "code": "code103",
+        "price": 100,
+        "status": true,
+        "stock": 20,
+        "category": "Fruta",
+        "thumbnail": [
+            "http://localhost:8080/storage/products/banana.jpg"
+        ]
+    },
+    {
+        "id": 5,
+        "title": "Kiwi",
+        "description": "Fruta",
+        "code": "code104",
+        "price": 200,
+        "status": true,
+        "stock": 20,
+        "category": "Fruta",
+        "thumbnail": [
+            "http://localhost:8080/storage/products/kiwi.jpg"
+        ]
+    },
+    {
+        "id": 6,
+        "title": "Pomelo",
+        "description": "Fruta",
+        "code": "code105",
+        "price": 165,
+        "status": true,
+        "stock": 20,
+        "category": "Fruta",
+        "thumbnail": [
+            "http://localhost:8080/storage/products/pomelo.jpg"
+        ]
+    },
+    {
+        "id": 7,
+        "title": "Melón",
+        "description": "Fruta",
+        "code": "code106",
+        "price": 180,
+        "status": true,
+        "stock": 20,
+        "category": "Fruta",
+        "thumbnail": [
+            "http://localhost:8080/storage/products/melon.jpg"
+        ]
+    },
+    {
+        "id": 8,
+        "title": "Sandia",
+        "description": "Fruta",
+        "code": "code107",
+        "price": 145,
+        "status": true,
+        "stock": 20,
+        "category": "Fruta",
+        "thumbnail": [
+            "http://localhost:8080/storage/products/sandia.jpg"
+        ]
+    },
+    {
+        "id": 9,
+        "title": "Mandarina",
+        "description": "Fruta",
+        "code": "code108",
+        "price": 80,
+        "status": true,
+        "stock": 20,
+        "category": "Fruta",
+        "thumbnail": [
+            "http://localhost:8080/storage/products/mandarina.jpg"
+        ]
+    },
+    {
+        "id": 10,
+        "title": "Durazno",
+        "description": "Fruta",
+        "code": "code109",
+        "price": 165,
+        "status": true,
+        "stock": 20,
+        "category": "Fruta",
+        "thumbnail": [
+            "http://localhost:8080/storage/products/durazno.jpg"
+        ]
+    }
+]
+

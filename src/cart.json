@@ -1,0 +1,39 @@
+[
+  {
+    "id": 1,
+    "cartId": [
+      {
+        "productId": 7,
+        "quantity": 4
+      },
+      {
+        "productId": 6,
+        "quantity": 3
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "cartId": []
+  },
+  {
+    "id": 3,
+    "cartId": []
+  },
+  {
+    "id": 4,
+    "cartId": []
+  },
+  {
+    "id": 5,
+    "cartId": []
+  },
+  {
+    "id": 6,
+    "cartId": []
+  },
+  {
+    "id": 7,
+    "cartId": []
+  }
+]

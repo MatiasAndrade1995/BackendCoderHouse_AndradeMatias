@@ -1,0 +1,39 @@
+<div class="container mt-3 mb-3">
+    <h1 class="text-center mt-5">¡Welcome {{firstname}} {{lastname}}!</h1>
+    <h2 class="text-center">{{email}}</h2>
+    <h2 class="text-center">You are: {{rol}}</h2>
+    <h2 class="text-center mt-3">Products</h2>
+    <div class="row d-flex justify-content-center">
+        <div class="col-12">
+            <div id="products" class="productsbox">
+                {{#each products}}
+                <div class="text-center ">
+                    <div class="products">
+                    <h4 class="mt-2 text-center">
+                        {{this.title}}
+                    </h4>
+                    </div>
+                    <h5>Price: ${{this.price}}</h5>
+                    <input type="submit" class="btn btn-primary" value="Buy"
+                        onclick="captureValueIdProduct('{{this.id}}')"></input>
+                </div>
+                {{/each}}
+            </div>
+            <div>
+                <button onclick="creatCart()" class="createCart">Create Cart</button>
+                <form onsubmit="loadCart()">
+                    <input name="cartID" onclick="loadCart()" class="createCart"
+                        placeholder="Load your cart ID">
+                    <input type="submit" class="mb-4 btn btn-success createCart d-flex justify-content-center "
+                        value="Load">
+                </form>
+                <div id="myFormContainer"></div>
+            </div>
+        </div>
+    </div>
+    <form action="/api/logout" method="post" class="d-flex justify-content-center">
+        <button class="mb-4 btn btn-danger" type="submit">Log out</button>
+    </form>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/index.js"></script>

@@ -1,0 +1,18 @@
+<div class="container p-2">
+    <h1 class="text-center mb-5 mt-5">My chat</h1>
+    <div class="viewChat col-12" id="chat">
+        {{#each messages}}
+        <h3 class="userChatView">{{this.user}}</h3>
+        <div class="msjChatView">
+            <h4>{{this.messageUser}}</h4>
+        </div>
+        {{/each}}
+    </div>
+    <form class="container" onsubmit="handleSubmit(event)">
+        <textarea placeholder="Your name..." class="w-50 col-12" name="user"></textarea>
+        <textarea placeholder="Your message..." class="w-50 col-12" name="messageUser"></textarea>
+        <input type="submit" id="buttonSubmit" value="Send" class="buttonSubmitChat col-12" />
+    </form>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/indexchat.js"></script>

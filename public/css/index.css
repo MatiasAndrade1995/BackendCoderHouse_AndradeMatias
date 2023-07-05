@@ -1,0 +1,87 @@
+.products {
+    height: 65px;
+    color: rgb(31, 103, 185);
+    text-decoration: underline;
+    margin: 5px auto;
+}
+
+h1 {
+    color: rgb(44, 101, 168);
+}
+
+div {
+    background-color: rgb(201, 201, 201);
+}
+
+textarea {
+    resize: none !important;
+    display: block !important;
+    margin: 15px auto !important;
+}
+
+.viewChat {
+    background-color: white;
+    width: 65% !important;
+    height: 400px;
+    margin: 5px auto !important;
+    overflow-y: scroll;
+    
+}
+
+.buttonSubmitChat {
+    width: 15% !important;
+    display: block !important;
+    margin: 10px auto !important;
+}
+
+.userChatView {
+    background-color: rgb(44, 101, 168);
+    text-align: center;
+    width: 15%;
+    padding: 5px 0px;
+    color: rgb(255, 255, 255);
+}
+
+h4 {
+    background-color: rgba(144, 136, 189, 0.39);
+    width: 50%;
+    padding-bottom: 5px;
+    margin: 0 auto;
+}
+
+.msjChatView {
+    background-color: rgb(255, 255, 255);
+    width: 75%;
+    padding: 10px 0px;
+
+}
+
+.createCart{
+    display: flex;
+    margin: 20px auto;
+    justify-content: center;
+}
+
+li{
+    list-style: none;
+}
+
+.productsbox{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+    gap: 40px;
+}
+
+.formRegis{
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    margin: 0px auto;
+    gap: 5px
+}
+
+.botonChooseProducts{
+    width: 100%;
+    margin: 0px auto;
+}
+

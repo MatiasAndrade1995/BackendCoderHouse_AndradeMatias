@@ -1,0 +1,15 @@
+<div class="container mt-3 mb-3">
+    <h1 class="text-center mt-5">Your profile</h1>
+    <div>
+        <li>
+            <ul><h2>First Name:</h2>{{firstname}}</ul>
+            <ul><h2>Last Name:</h2>{{lastname}}</ul>
+            <ul><h2>Email:</h2> {{email}}</ul>
+            <ul><h2>Age:</h2> {{age}}</ul>
+            <ul><h2>Rol:</h2>{{rol}}</ul>
+        </li>
+    </div>
+    <form action="/api/logout" method="post" class="d-flex justify-content-center ">
+        <button class="mb-3" type="submit">Log out</button>
+    </form>
+</div>
