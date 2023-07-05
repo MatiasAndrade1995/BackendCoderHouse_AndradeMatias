@@ -43,24 +43,43 @@ const login = async (req, res) => {
 }
 
 const loginUser = async (req, res) => {
-    if (req.body.email == 'adminCoder@coder.com' && req.body.password == 'adminCod3r123') {
-        req.session.first_name = 'Admin Backend';
-        req.session.last_name = 'Coder House';
-        req.session.password = req.body.password;
-        req.session.email = req.body.email;
-        req.session.age = '28';
-        req.session.rol = 'admin';
-        res.redirect('/api/products');
-        return;
+
+    const isTestMode = process.env.NODE_ENV === 'test';
+
+    if (isTestMode) {
+
+        const testData = {
+            email: 'adminCoder@coder.com',
+            password: 'adminCod3r123',
+            first_name: 'Admin Backend',
+            last_name: 'Coder House',
+            age: '28',
+            rol: 'admin'
+        };
+
+        if (req.body.email === testData.email && req.body.password === testData.password) {
+            req.session.first_name = testData.first_name;
+            req.session.last_name = testData.last_name;
+            req.session.password = req.body.password;
+            req.session.email = req.body.email;
+            req.session.age = testData.age;
+            req.session.rol = testData.rol;
+            res.redirect('/api/products');
+            return;
+        }
     } else {
+
+        //If TestMode doesnt exist, will go a production here...
+
         try {
             const user = await User.findOne({ email: req.body.email });
-            const validPassword = await compare(req.body.password, user.password)
+            const validPassword = await compare(req.body.password, user.password);
+
             if (validPassword) {
                 req.session.first_name = user.first_name;
                 req.session.last_name = user.last_name;
                 req.session.email = user.email;
-                req.session.password = user.password;;
+                req.session.password = user.password;
                 req.session.age = user.age;
                 req.session.rol = user.rol;
                 res.status(200).redirect('/api/products');
@@ -68,7 +87,7 @@ const loginUser = async (req, res) => {
                 res.status(400).send('Password error...');
             }
         } catch (error) {
-            res.status(404).send('Error in authetication');
+            res.status(404).send('Error in authentication');
         }
     }
 };

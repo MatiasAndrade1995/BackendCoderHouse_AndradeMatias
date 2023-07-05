@@ -109,5 +109,6 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 3000
 server.listen(PORT, () => {
     console.log(`Server run on port http://localhost:${PORT}`)
+    process.env.NODE_ENV === 'test' ? console.log('Test mode on...') : console.log('Production mode on...')
     classMongoDb.connectionMongoDb()
 })
