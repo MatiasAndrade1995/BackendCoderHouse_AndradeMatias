@@ -1,4 +1,4 @@
-// DESAFIO ENTREGABLE -  Websockets + Handlebars - ANDRADE MATIAS
+// DESAFIO ENTREGABLE -Estrategias de autenticion- ANDRADE MATIAS
 require('dotenv').config()
 const express = require('express')
 const path = require('path')
@@ -26,7 +26,6 @@ initializePassport()
 app.use(passport.initialize())
 app.use(passport.session())
 
-
 //Http import
 const http = require('http')
 const server = http.createServer(app)
@@ -37,7 +36,6 @@ app.use('/api', require('./routes/carts'))
 app.use('/api', require('./routes/messages'))
 app.use('/api', require('./routes/sessions'))
 
-
 // app.use('/images', require('./routes/multer'))
 
 //Import models
@@ -47,7 +45,6 @@ const Cart = require('./dao/models/cart')
 
 //Import transformDataProducts
 const { transformDataProducts, transformDataChat } = require('./utils/transformdata')
-
 
 //Socket Import
 const { Server } = require('socket.io')

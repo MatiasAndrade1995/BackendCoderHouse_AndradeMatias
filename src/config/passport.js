@@ -63,7 +63,7 @@ const initializePassport = () => {
                 clientSecret: process.env.CLIENT_SECRET,
                 callbackURL: 'http://localhost:8080/api/auth/github/callback'
 
-            }, async function (accessToken, refreshToken, profile, done) {  
+            }, async function (accessToken, refreshToken, profile, done) {
                 let firstAndLastName = profile._json.name.split(" ");
                 try {
                     let user = await User.findOne({ email: `${profile._json.login}@github.com.ar` })
@@ -71,10 +71,10 @@ const initializePassport = () => {
                         let newUser = {
                             first_name: firstAndLastName[0].toString(),
                             last_name: firstAndLastName[1].toString(),
-                            email:`${profile._json.login}@github.com.ar`,
+                            email: `${profile._json.login}@github.com.ar`,
                             age: 2023,
-                            password:'dontuse',
-                            rol:'user'
+                            password: 'dontuse',
+                            rol: 'user'
                         }
                         let result = await User.create(newUser);
                         done(null, result)
@@ -87,7 +87,6 @@ const initializePassport = () => {
             }
         )
     )
-
     passport.serializeUser((user, done) => {
         try {
             done(null, user._id);

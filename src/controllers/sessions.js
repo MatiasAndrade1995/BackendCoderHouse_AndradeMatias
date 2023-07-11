@@ -116,26 +116,23 @@ const dataProfile = async (req, res) => {
 
 const logout = async (req, res) => {
     try {
-        req.logout(req.user, err => {
-            if (err) return next(err);
-            req.session.destroy((err) => {
-                if (err) {
-                    res.status(404).send('Error try destroy session', err);
-                }
-                res.status(200).res.clearCookie('connect.sid').redirect('/api');
-            });
-        })    
+        await req.session.destroy(err => {
+            if (err) {
+                res.send('Failed to logout');
+            } else {
+                res.clearCookie('connect.sid').redirect('/api');
+            }
+        })
     } catch (err) {
-        res.status(404).send({error: err})
+        res.send(err)
     }
 }
-
 
 module.exports = {
     login,
     formNewUser,
     dataProfile,
+    logout,
     authloginsession,
-    errorRegister,
-    logout
+    errorRegister
 }
