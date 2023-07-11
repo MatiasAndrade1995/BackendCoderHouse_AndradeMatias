@@ -1,13 +1,29 @@
 const express = require('express')
+const passport = require('passport')
 const router = express.Router()
 const decodForm = express.urlencoded({ extended: true })
-const { login, loginUser, sessionMiddleware, authloginsession, formNewUser, dataProfile, registerNewUser, logout, authlogin} = require('../controllers/sessions')
+const { login, authloginsession, formNewUser, dataProfile, errorRegister, logout } = require('../controllers/sessions')
 
-router.get('/',login)
-router.post('/login', decodForm, sessionMiddleware, authlogin, loginUser)
-router.get('/profile', sessionMiddleware, authloginsession,dataProfile)
-router.get('/register',formNewUser)
-router.post('/register', decodForm, registerNewUser)
-router.post('/logout', sessionMiddleware, logout)
+router.get('/', login)
+router.get('/errorregister', errorRegister)
+router.get('/profile', authloginsession, dataProfile)
+router.get('/register', formNewUser)
+router.get("/logout", logout);
+    
+router.post('/register', decodForm, passport.authenticate('register', { failureRedirect: '/api/errorregister' }), (req, res) => {
+    res.render('registersuccefully', {
+        name: req.body.first_name
+    });
+});
+
+router.post('/login', decodForm, passport.authenticate('login', { failureRedirect: '/' }), (req, res) => {
+    res.status(200).redirect('/api/products');
+})
+
+router.get('/auth/github', passport.authenticate('auth-github', { scope: ['user:email'] }));
+router.get('/auth/github/callback', passport.authenticate('auth-github', { failureRedirect: '/' }), (req, res) => {
+    req.session.user = req.user
+    res.status(200).redirect('/api/products');
+});
 
 module.exports = router;

@@ -78,14 +78,12 @@ const getProductsControllerView = async (req, res) => {
             });
         }
         const dataProducts = transformDataProducts(products.docs)
-
             res.status(200).render('viewproducts', {
                 products: dataProducts,
-                email: req.session.email,
-                firstname: req.session.first_name,
-                lastname: req.session.last_name,
-                rol: req.session.rol,
-                cart:'hola'
+                email: req.user.email,
+                firstname: req.user.first_name,
+                lastname: req.user.last_name,
+                rol: req.user.rol,
             })
 
     } catch (err) {

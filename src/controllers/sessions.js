@@ -5,30 +5,10 @@ const MongoStore = require('connect-mongo')
 const User = require('../dao/models/users');
 const { hashPassword, compare } = require('../utils/handlePassword');
 
-const sessionMiddleware = session({
-    store: MongoStore.create({
-        mongoUrl: process.env.URL_MONGO
-    }),
-    secret: 'secretBackend',
-    resave: true,
-    saveUninitialized: true
-})
-
-async function authlogin(req, res, next) {
-    try {
-        if (req.session.email === req.body.email && req.session.password) {
-            res.send('You are already connected')
-        } else {
-            next()
-        }
-    } catch {
-        res.status(401).send('Error in authetication')
-    }
-}
 
 async function authloginsession(req, res, next) {
     try {
-        if (req.session.email && req.session.password) {
+        if (req.isAuthenticated()) {
             next()
         } else {
             res.send('You need connect first')
@@ -39,15 +19,23 @@ async function authloginsession(req, res, next) {
 }
 
 const login = async (req, res) => {
-    res.render('login')
+    try {
+        if (req.isAuthenticated()) {
+            res.redirect('/api/products');
+        } else {
+            res.render('login')
+        }
+    } catch {
+        res.status(401).send('Error in authetication')
+    }   
 }
 
 const loginUser = async (req, res) => {
-
+    
     const isTestMode = process.env.NODE_ENV === 'test';
 
     if (isTestMode) {
-
+        
         const testData = {
             email: 'adminCoder@coder.com',
             password: 'adminCod3r123',
@@ -110,38 +98,44 @@ const registerNewUser = async (req, res) => {
     }
 }
 
+
+const errorRegister = (req, res) => {
+    res.status(404).render('errorregister')
+}
+
+
 const dataProfile = async (req, res) => {
     res.render('profile', {
-        firstname: req.session.first_name,
-        lastname: req.session.last_name,
-        age: req.session.age,
-        email: req.session.email,
-        rol: req.session.rol
+        firstname: req.user.first_name,
+        lastname: req.user.last_name,
+        age: req.user.age,
+        email: req.user.email,
+        rol: req.user.rol
     })
 }
 
 const logout = async (req, res) => {
     try {
-        await req.session.destroy(err => {
-            if (err) {
-                res.send('Failed to logout');
-            } else {
-                res.clearCookie('connect.sid').redirect('/api');
-            }
-        })
+        req.logout(req.user, err => {
+            if (err) return next(err);
+            req.session.destroy((err) => {
+                if (err) {
+                    res.status(404).send('Error try destroy session', err);
+                }
+                res.status(200).res.clearCookie('connect.sid').redirect('/api');
+            });
+        })    
     } catch (err) {
-        res.send(err)
+        res.status(404).send({error: err})
     }
 }
 
+
 module.exports = {
     login,
-    authlogin,
-    loginUser,
-    sessionMiddleware,
     formNewUser,
     dataProfile,
-    registerNewUser,
-    logout,
-    authloginsession
+    authloginsession,
+    errorRegister,
+    logout
 }

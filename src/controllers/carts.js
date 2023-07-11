@@ -38,7 +38,6 @@ const getProductsInCartIdController = async (req, res) => {
         const productsInCart = await Cart.findById(cid).populate('products.product');
         const { products } = productsInCart
         const dataCartId = transformDataCart(products)
-        console.log(dataCartId)
         res.status(200).render('cartid', {
             productsCart: dataCartId
         });
@@ -51,7 +50,6 @@ const getProductsInCartIdController = async (req, res) => {
 const productsInCartController = async (req, res) => {
     const { cid, pid } = req.params;
     const { quantity } = req.body;
-    console.log(req.body)
     try {
         const product = await Product.findById(pid);
         const cart = await Cart.findById(cid);

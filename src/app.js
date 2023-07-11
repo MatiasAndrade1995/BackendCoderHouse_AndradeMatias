@@ -4,8 +4,28 @@ const express = require('express')
 const path = require('path')
 const cors = require("cors")
 const app = express()
+const session = require ('express-session')
+const passport = require('passport')
+const { initializePassport } = require('./config/passport')
+const MongoStore = require('connect-mongo')
+
 app.use(cors())
 app.use(express.json())
+
+app.use(session({
+    store: MongoStore.create({
+        mongoUrl: process.env.URL_MONGO
+    }),
+    secret: 'secretBackend',
+    resave: true,
+    saveUninitialized: true
+}));
+
+
+initializePassport()
+app.use(passport.initialize())
+app.use(passport.session())
+
 
 //Http import
 const http = require('http')
@@ -16,6 +36,7 @@ app.use('/api', require('./routes/products'))
 app.use('/api', require('./routes/carts'))
 app.use('/api', require('./routes/messages'))
 app.use('/api', require('./routes/sessions'))
+
 
 // app.use('/images', require('./routes/multer'))
 
@@ -109,6 +130,6 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 3000
 server.listen(PORT, () => {
     console.log(`Server run on port http://localhost:${PORT}`)
-    process.env.NODE_ENV === 'test' ? console.log('Test mode on...') : console.log('Production mode on...')
+    process.env.NODE_ENV === 'test' ? console.log('Test mode1 on...') : console.log('Production mode on...')
     classMongoDb.connectionMongoDb()
 })

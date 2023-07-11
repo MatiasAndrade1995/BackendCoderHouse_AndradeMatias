@@ -48,4 +48,5 @@ const getMessagesRealtimeController = async (req, res) => {
     }
 }
 
+
 module.exports = {getMessages, createMessage, getMessagesRealtimeController}

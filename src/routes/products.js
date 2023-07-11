@@ -3,9 +3,9 @@ const router = express.Router()
 const uploadMulter = require('../utils/multer')
 
 const {getProductController, createProductController, updateProductController, deleteProductController, getProductsControllerRealTime, getProductsControllerView, } = require ('../controllers/products')
-const {authloginsession, sessionMiddleware } = require('../controllers/sessions')
+const {authloginsession} = require('../controllers/sessions')
 
-router.get("/products", sessionMiddleware, authloginsession,getProductsControllerView)
+router.get("/products",authloginsession, getProductsControllerView)
 router.get('/realtimeproducts', getProductsControllerRealTime)
 router.get("/products/:pid", getProductController)
 router.post("/products", uploadMulter.single('thumbnail'),createProductController)
