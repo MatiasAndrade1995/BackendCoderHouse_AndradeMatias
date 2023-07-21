@@ -5,7 +5,6 @@ const fs = require('fs')
 const { transformDataProducts } = require('../utils/transformdata');
 const mongoosePaginate = require('mongoose-paginate-v2');
 
-
 //CREATE
 const createProductController = async (req, res) => {
     const body = req.body;
@@ -84,6 +83,7 @@ const getProductsControllerView = async (req, res) => {
                 firstname: req.user.first_name,
                 lastname: req.user.last_name,
                 rol: req.user.rol,
+                cartID : req.user.cartID
             })
 
     } catch (err) {

@@ -4,7 +4,6 @@ const { transformDataChat } = require('../utils/transformdata');
 const getMessages = async (req, res) => {
     try {
         const messages = await Message.find()
-        console.log(messages)
         res.render('chat', {
             messages: messages
         })
@@ -37,7 +36,6 @@ const getMessagesRealtimeController = async (req, res) => {
     try {
         const messages = await Message.find()
         let dataMessages = transformDataChat(messages)
-        console.log(dataMessages)
         res.render('chat', {
             messages: dataMessages
         })

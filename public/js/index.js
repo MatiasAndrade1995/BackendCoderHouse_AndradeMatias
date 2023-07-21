@@ -73,62 +73,40 @@ function loadCart() {
     socket.emit('requestloadcart', cartID)
 }
 
-let newCart
-
-socket.on('requestcartok', (data) => {
-    console.log(`Cart ID ${data._id} loaded...`);
-    newCart = data._id;
-    document.cookie = newCart;
-    const formUrl = `/api/carts/${newCart}`;
+() => {
+    
+    const formUrl = `/api/carts/${cartID}`;
     const htmlForm = `
         <form action="${formUrl}" method="get" class="d-flex justify-content-center">
             <button class="mb-4 btn btn-primary" type="submit">See my cart</button>
         </form>
     `;
-    document.getElementById('myFormContainer').innerHTML = htmlForm;
-});
+    document.getElementById('myFormContainer').innerHTML = htmlForm; 
+}
+    
+
 
 async function captureValueIdProduct(pid) {
-    if (newCart == undefined) {
-        newCart = document.cookie
-        console.log(`Trying add product in Cart : ${newCart}`)
-    } else {
-        console.log(`Trying add product in Cart : ${newCart}`)
-    }
+    let cartID = document.querySelector('#userEmail').getAttribute('data-cartid');
+    console.log(`Trying to add product to Cart: ${cartID}`);
     const quantity = 1;
     try {
-        const res = await fetch(`carts/${newCart}/products/${pid}`, {
+        const res = await fetch(`/api/carts/${cartID}/products/${pid}`, {
             method: 'PUT',
             headers: { 'Content-type': 'application/json; charset=utf-8' },
-            body: JSON.stringify({quantity: quantity })
-        })
-        if (!res.ok) throw res
-        const json = await res.json()
-        const formUrl = `/api/carts/${newCart}`;
-        const htmlForm = `
-        <form action="${formUrl}" method="get" class="d-flex justify-content-center">
-            <button class="mb-4 btn btn-primary" type="submit">See my cart</button>
-        </form>
-    `;
-        document.getElementById('myFormContainer').innerHTML = htmlForm;
+            body: JSON.stringify({ quantity: quantity })
+        });
+        if (!res.ok) throw res;
+        const json = await res.json();
     } catch (e) {
-        console.log(e)
+        console.log(e);
     }
-
 }
 
- // socket.emit('requestproduct', (requestProduct))
-
-
-
 function deleteProductCart(pid) {
-    if (newCart == undefined) {
-        newCart = document.cookie
-        console.log(`Trying delete product in Cart : ${newCart}`)
-    } else {
-        console.log(`Trying delete product in Cart : ${newCart}`)
-    }
-    fetch(`/api/carts/${newCart}/products/${pid}`, {
+    let cartID = document.querySelector('#userEmail').getAttribute('data-cartid');
+    console.log(`Trying delete product in Cart : ${cartID}`)
+    fetch(`/api/carts/${cartID}/products/${pid}`, {
         method: 'DELETE'
     })
         .then(response => {
@@ -153,13 +131,10 @@ function deleteProductCart(pid) {
 }
 
 function deleteAllProductCart(pid) {
-    if (newCart == undefined) {
-        newCart = document.cookie
-        console.log(`Trying delete product in Cart : ${newCart}`)
-    } else {
-        console.log(`Trying delete product in Cart : ${newCart}`)
-    }
-    fetch(`/api/carts/${newCart}`, {
+    let cartID = document.querySelector('#userEmail').getAttribute('data-cartid');
+    console.log(`Trying delete product in Cart : ${cartID}`)
+    
+    fetch(`/api/carts/${cartID}`, {
         method: 'DELETE'
     })
         .then(response => {

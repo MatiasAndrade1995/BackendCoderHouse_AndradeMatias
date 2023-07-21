@@ -25,12 +25,17 @@ const userSchema = new mongoose.Schema({
         type: String,
         unique: false,
         required: true 
-    },    
+    },
+    cartID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Cart',
+        strict: true
+    },
     rol: {
-        type: String,
+        type: ['user', 'admin'],
         unique: false,
-        required: true
-    },    
+        default: 'user'
+    },   
 });
 
 const User = mongoose.model('user', userSchema)

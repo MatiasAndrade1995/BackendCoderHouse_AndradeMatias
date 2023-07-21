@@ -32,6 +32,18 @@ const getProductsInCartController = async (req, res) => {
     }
 }
 
+
+const getCart = async (req, res) => {
+    const cid = req.user.cartID
+    try {
+        res = await Cart.findById(cid)
+        console.log(`my id ${res}`)
+    } catch(error) {
+        console.log(error)
+    }
+}
+
+
 const getProductsInCartIdController = async (req, res) => {
     const { cid } = req.params
     try {
@@ -39,7 +51,12 @@ const getProductsInCartIdController = async (req, res) => {
         const { products } = productsInCart
         const dataCartId = transformDataCart(products)
         res.status(200).render('cartid', {
-            productsCart: dataCartId
+            productsCart: dataCartId,
+            email: req.user.email,
+            firstname: req.user.first_name,
+            lastname: req.user.last_name,
+            rol: req.user.rol,
+            cartID: req.user.cartID
         });
     } catch (error) {
         res.status(404).send({ error: 'Error try found Users cart' })
@@ -141,4 +158,4 @@ const deleteProductSelectedCartController = async (req, res) => {
 };
 
 
-module.exports = { creatCartController, getCartsController, getProductsInCartController, productsInCartController, deleteProductsCartController, deleteProductSelectedCartController, getProductsInCartIdController };
+module.exports = { creatCartController, getCartsController, getProductsInCartController, productsInCartController, deleteProductsCartController, deleteProductSelectedCartController, getProductsInCartIdController, getCart };

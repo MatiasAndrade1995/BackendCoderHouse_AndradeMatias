@@ -11,7 +11,7 @@ class MongoManager {
                 .then(connect => {
                     console.log('Conecction succefully')
                 })
-                .catch(err => console.log('err')) 
+                .catch(err => console.log(err)) 
     }
 }
 

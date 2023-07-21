@@ -104,34 +104,36 @@ const errorRegister = (req, res) => {
 }
 
 
-const dataProfile = async (req, res) => {
-    res.render('profile', {
+const dataCurrent = async (req, res) => {
+    res.render('current', {
         firstname: req.user.first_name,
         lastname: req.user.last_name,
         age: req.user.age,
         email: req.user.email,
-        rol: req.user.rol
+        rol: req.user.rol,
+        cartID: req.user.cartID
     })
 }
 
 const logout = async (req, res) => {
+
     try {
-        await req.session.destroy(err => {
-            if (err) {
-                res.send('Failed to logout');
-            } else {
-                res.clearCookie('connect.sid').redirect('/api');
-            }
-        })
+        await req.session.destroy()
+        console.log('logout')
+        res.clearCookie('connect.sid').redirect('/api');
+
     } catch (err) {
-        res.send(err)
+        res.send(err) || res.send('Failed to logout')
+
     }
+
 }
+
 
 module.exports = {
     login,
     formNewUser,
-    dataProfile,
+    dataCurrent,
     logout,
     authloginsession,
     errorRegister

@@ -7,6 +7,7 @@ const app = express()
 const session = require ('express-session')
 const passport = require('passport')
 const { initializePassport } = require('./config/passport')
+const { login } = require('./controllers/sessions')
 const MongoStore = require('connect-mongo')
 
 app.use(cors())
@@ -16,7 +17,9 @@ app.use(session({
     store: MongoStore.create({
         mongoUrl: process.env.URL_MONGO
     }),
-    secret: 'secretBackend',
+    cookie: { maxAge: 3600000 },
+    // secure: true,
+    secret: process.env.SECRET_BD,
     resave: true,
     saveUninitialized: true
 }));
@@ -35,6 +38,7 @@ app.use('/api', require('./routes/products'))
 app.use('/api', require('./routes/carts'))
 app.use('/api', require('./routes/messages'))
 app.use('/api', require('./routes/sessions'))
+app.get('/', login)
 
 // app.use('/images', require('./routes/multer'))
 
@@ -60,6 +64,7 @@ const controllerProduct = new ProductManager();
 
 //Import db
 const MongoManager = require('./dao/mongodb/db.js')
+
 const classMongoDb = new MongoManager(process.env.URL_MONGO);
 
 //Views
@@ -100,26 +105,6 @@ io.on('connection', (socket) => {
             socket.emit('refreshproducts', dataProducts)
         } catch (err) {
             console.log(err)
-        }
-
-    })
-
-    socket.on('requestnewcart', async (data) => {
-        try {
-            res = await Cart.create({})
-            socket.emit('requestcartok', res)
-        } catch {
-            console.log(err)
-        }
-    })
-    
-    socket.on('requestloadcart', async (data) => {
-        try {
-            res = await Cart.findById(data)
-            console.log(`my id ${res}`)
-            socket.emit('requestcartok', res)
-        } catch {
-            console.log('error')
         }
     })
 })
