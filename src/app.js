@@ -1,7 +1,7 @@
 // DESAFIO ENTREGABLE -Estrategias de autenticion- ANDRADE MATIAS
-require('dotenv').config()
+// const path = require('path')
+const config = require('./config')
 const express = require('express')
-const path = require('path')
 const cors = require("cors")
 const app = express()
 const session = require ('express-session')
@@ -15,11 +15,11 @@ app.use(express.json())
 
 app.use(session({
     store: MongoStore.create({
-        mongoUrl: process.env.URL_MONGO
+        mongoUrl: config.urlMongo
     }),
     cookie: { maxAge: 3600000 },
     // secure: true,
-    secret: process.env.SECRET_BD,
+    secret: config.secretBd,
     resave: true,
     saveUninitialized: true
 }));
@@ -45,7 +45,7 @@ app.get('/', login)
 //Import models
 const Product = require('./dao/models/products');
 const Message = require('./dao/models/messages')
-const Cart = require('./dao/models/cart')
+
 
 //Import transformDataProducts
 const { transformDataProducts, transformDataChat } = require('./utils/transformdata')
@@ -59,13 +59,12 @@ app.use(express.static("public"))
 
 //View Dependencies
 const handlebars = require('express-handlebars')
-const ProductManager = require('./dao/fs/ProductManager')
-const controllerProduct = new ProductManager();
+// const ProductManager = require('./dao/fs/ProductManager')
+// const controllerProduct = new ProductManager();
 
 //Import db
 const MongoManager = require('./dao/mongodb/db.js')
-
-const classMongoDb = new MongoManager(process.env.URL_MONGO);
+const classMongoDb = new MongoManager(config.urlMongo);
 
 //Views
 app.engine('handlebars', handlebars.engine())
@@ -109,9 +108,9 @@ io.on('connection', (socket) => {
     })
 })
 
-const PORT = process.env.PORT || 3000
+const PORT = config.port || 3000
 server.listen(PORT, () => {
-    console.log(`Server run on port http://localhost:${PORT}`)
-    process.env.NODE_ENV === 'test' ? console.log('Test mode1 on...') : console.log('Production mode on...')
+    console.log(`Server run on port http://localhost:${config.port}`)
+    config.nodeEnv === 'test' ? console.log('Test mode on...') : console.log('Production mode on...')
     classMongoDb.connectionMongoDb()
 })

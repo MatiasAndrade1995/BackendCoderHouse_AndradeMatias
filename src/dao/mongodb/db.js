@@ -15,6 +15,4 @@ class MongoManager {
     }
 }
 
-
-
 module.exports = MongoManager;

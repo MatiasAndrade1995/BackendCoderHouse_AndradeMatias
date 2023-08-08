@@ -74,16 +74,16 @@ function loadCart() {
 }
 
 () => {
-    
+
     const formUrl = `/api/carts/${cartID}`;
     const htmlForm = `
         <form action="${formUrl}" method="get" class="d-flex justify-content-center">
             <button class="mb-4 btn btn-primary" type="submit">See my cart</button>
         </form>
     `;
-    document.getElementById('myFormContainer').innerHTML = htmlForm; 
+    document.getElementById('myFormContainer').innerHTML = htmlForm;
 }
-    
+
 
 
 async function captureValueIdProduct(pid) {
@@ -127,13 +127,13 @@ function deleteProductCart(pid) {
                 document.getElementById("boxProductsCart").innerHTML = htmlProductsInCart;
             }
         })
-        .catch(error => console.log('Error:', error));     
+        .catch(error => console.log('Error:', error));
 }
 
 function deleteAllProductCart(pid) {
     let cartID = document.querySelector('#userEmail').getAttribute('data-cartid');
     console.log(`Trying delete product in Cart : ${cartID}`)
-    
+
     fetch(`/api/carts/${cartID}`, {
         method: 'DELETE'
     })
@@ -146,6 +146,6 @@ function deleteAllProductCart(pid) {
         })
         .then(data => console.log('All products delete'))
         .catch(error => console.log('Error:', error));
-        let htmlProductsInCart = `<div ><h2 class="text-center">This cart is empty.</h2></div>`
-        document.getElementById("boxProductsCart").innerHTML = htmlProductsInCart;
+    let htmlProductsInCart = `<div ><h2 class="text-center">This cart is empty.</h2></div>`
+    document.getElementById("boxProductsCart").innerHTML = htmlProductsInCart;
 }

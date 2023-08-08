@@ -1,10 +1,6 @@
-const session = require('express-session')
-const cookiesParser = require('cookie-parser')
-const FileStore = require('session-file-store')(session);
-const MongoStore = require('connect-mongo')
+const config = require('../config');
 const User = require('../dao/models/users');
 const { hashPassword, compare } = require('../utils/handlePassword');
-
 
 async function authloginsession(req, res, next) {
     try {
@@ -32,7 +28,7 @@ const login = async (req, res) => {
 
 const loginUser = async (req, res) => {
     
-    const isTestMode = process.env.NODE_ENV === 'test';
+    const isTestMode = config.nodeEnv === 'test';
 
     if (isTestMode) {
         
@@ -56,8 +52,6 @@ const loginUser = async (req, res) => {
             return;
         }
     } else {
-
-        //If TestMode doesnt exist, will go a production here...
 
         try {
             const user = await User.findOne({ email: req.body.email });
@@ -119,7 +113,6 @@ const logout = async (req, res) => {
 
     try {
         await req.session.destroy()
-        console.log('logout')
         res.clearCookie('connect.sid').redirect('/api');
 
     } catch (err) {

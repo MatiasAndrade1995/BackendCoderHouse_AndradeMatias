@@ -1,5 +1,3 @@
-const e = require("express");
-
 const transformDataProducts = (products) => {
     const dataProducts = products.map(el => {
         const dataFormated = {

@@ -1,5 +1,5 @@
 const passport = require('passport')
-require('dotenv').config()
+const config = require('../config')
 const LocalStrategy = require('passport-local').Strategy
 const GitHubStrategy = require('passport-github2').Strategy
 const User = require('../dao/models/users')
@@ -64,8 +64,8 @@ const initializePassport = () => {
         'auth-github',
         new GitHubStrategy(
             {
-                clientID: process.env.CLIENT_ID,
-                clientSecret: process.env.CLIENT_SECRET,
+                clientID: config.clientId,
+                clientSecret: config.clientSecret,
                 callbackURL: 'http://localhost:8080/api/auth/github/callback'
             },
             async function (accessToken, refreshToken, profile, done) {
@@ -90,7 +90,7 @@ const initializePassport = () => {
                         done(null, user);
                     }
                 } catch (error) {
-                    console.error('Error:', error); // Registra cualquier error que ocurra durante el proceso
+                    console.error('Error:', error); 
                     done(error, null);
                 }
             }

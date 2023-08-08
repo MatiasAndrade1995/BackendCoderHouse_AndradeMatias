@@ -1,9 +1,7 @@
-const ProductManager = require("../dao/fs/ProductManager")
-const productManager = new ProductManager();
 const Product = require('../dao/models/products');
 const fs = require('fs')
 const { transformDataProducts } = require('../utils/transformdata');
-const mongoosePaginate = require('mongoose-paginate-v2');
+
 
 //CREATE
 const createProductController = async (req, res) => {
