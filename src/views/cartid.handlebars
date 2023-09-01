@@ -16,10 +16,13 @@
         <div id="botonChooseProducts" class="text-center mb-3">
             <a href="/api/products" class="mb-4 mt-5 btn btn-primary">Choose products</a>
         </div>
+    <input type="submit" class="mb-4 btn btn-danger" value="Finish cart" onclick="purchaseCart()"></input>
     <form action="/api/logout" method="get" class="d-flex justify-content-center">
     <button class="mb-4 btn btn-danger" type="submit">Log out</button>
     </form>
     <input type="submit" class="mb-4 btn btn-info text-center" value="Clear cart" onclick="deleteAllProductCart()"></input>
+    <div id="ticket"></div>
 </div>
+
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/index.js"></script>

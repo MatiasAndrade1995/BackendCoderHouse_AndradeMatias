@@ -1,31 +1,47 @@
-const Product = require('../dao/models/products');
+const Products = require('../dao/mongodb/products.mongo')
 const fs = require('fs')
-const { transformDataProducts } = require('../utils/transformdata');
-
+const productService = new Products()
 
 //CREATE
+const getProductsControllerWithoutPaginate = async (req, res) => {
+    try {
+        const products = await productService.getProducts()
+        res.status(200).send(products)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+
+}
+
 const createProductController = async (req, res) => {
     const body = req.body;
-    const file = req.file
-    const data = {
-        ...body, thumbnail: `http://localhost:8080/storage/products/${file.filename}`
-    }
+    const file = req.file;
     try {
-        const product = await Product.create(data)
-        res.status(201).send(product)
+        const product = await productService.createProduct(body, file);
+        res.status(201).send(product);
     } catch (err) {
-        fs.unlinkSync(`${__dirname}/../../public/storage/products/${file.filename}`);
-        if (err.error) {
-            res.status(404).send(err)
-        } else {
-            if (err.errors) {
-                res.status(404).send({ error: err.message })
-            } else {
-                res.status(404).send({ error: 'Title or code already be declared in databases' })
+        if (file) {
+            try {
+                await fs.promises.unlink(`${__dirname}/../../public/storage/products/${file.filename}`);
+            } catch (unlinkErr) {
+                console.error('Error deleting file:', unlinkErr);
             }
         }
+
+        if (err.error) {
+            return res.status(404).send(err);
+        }
+
+        let errorMessage = 'An error occurred';
+        if (err.errors) {
+            errorMessage = err.message;
+        } else {
+            errorMessage = 'Title or code already exists in the database';
+        }
+        res.status(404).send({ error: errorMessage });
     }
 }
+
 
 //READ
 const getProductsController = async (req, res) => {
@@ -35,19 +51,7 @@ const getProductsController = async (req, res) => {
     status == "true" ? true : false;
     let products;
     try {
-        if (category || status) {
-            products = await Product.paginate({ $or: [{ category: category }, { status: status }] }, {
-                limit: limitQueryParams,
-                sort: { price: order },
-                page: page || 1
-            });
-        } else {
-            products = await Product.paginate({}, {
-                limit: limitQueryParams,
-                sort: { price: order },
-                page: page || 1
-            });
-        }
+        products = await productService.createProduct(category, status, limit, sort, page, limitQueryParams, order)
         res.status(200).send(products)
     } catch (err) {
         res.status(500).send({ error: 'Error reading filter' });
@@ -55,35 +59,20 @@ const getProductsController = async (req, res) => {
 };
 
 const getProductsControllerView = async (req, res) => {
-    const { category, status, limit, sort, page} = req.query;
+    const { category, status, limit, sort, page } = req.query;
     const limitQueryParams = limit || 10;
     const order = sort;
     status == "true" ? true : false;
-    let products;
     try {
-        if (category || status) {
-            products = await Product.paginate({ $or: [{ category: category }, { status: status }] }, {
-                limit: limitQueryParams,
-                sort: { price: order },
-                page: page || 1
-            });
-        } else {
-            products = await Product.paginate({}, {
-                limit: limitQueryParams,
-                sort: { price: order },
-                page: page || 1
-            });
-        }
-        const dataProducts = transformDataProducts(products.docs)
-            res.status(200).render('viewproducts', {
-                products: dataProducts,
-                email: req.user.email,
-                firstname: req.user.first_name,
-                lastname: req.user.last_name,
-                rol: req.user.rol,
-                cartID : req.user.cartID
-            })
-
+        const dataProducts = await productService.paginateProducts(category, status, limit, sort, page, limitQueryParams, order)
+        res.status(200).render('viewproducts', {
+            products: dataProducts,
+            email: req.user.email,
+            firstname: req.user.first_name,
+            lastname: req.user.last_name,
+            rol: req.user.rol,
+            cartID: req.user.cartID
+        })
     } catch (err) {
         res.status(500).send({ error: 'Error reading products indicate' });
     }
@@ -91,43 +80,32 @@ const getProductsControllerView = async (req, res) => {
 
 //UPDATE
 const updateProductController = async (req, res) => {
-    const { body, file } = req
-    const { pid } = req.params
+    const { body, file } = req;
+    const { pid } = req.params;
     try {
-        const product = await Product.findById(pid)
+        const product = await productService.getProductById(pid);
         if (product) {
-            const dataReplace = {
-                ...body, thumbnail: file ? `http://localhost:8080/storage/products/${file.filename}` : body.thumbnail
-            }
-            if (file) {
-                const nameFile = product.thumbnail.split("/").pop() // Refiere al último separador que es ${file.filename}
-                fs.unlinkSync(`${__dirname}/../../public/storage/products/${nameFile}`)
-            }
-            const productReplaced = await Product.findByIdAndUpdate(pid, dataReplace, { new: true })
-            res.status(201).send(productReplaced)
+            const productReplaced = await productService.updateProductById(pid, body, file);
+            res.status(201).send(productReplaced);
         } else {
-            throw { error: 'Not exist' }
+            throw { error: 'Not exist' };
         }
     } catch (error) {
-        if (file) { fs.unlinkSync(`${__dirname}/../../public/storage/products/${file.filename}`) }
-        console.log(error)
-        res.status(404).send(error)
+        if (file) {
+            fs.unlinkSync(`${__dirname}/../../public/storage/products/${file.filename}`);
+        }
+        res.status(404).send(error);
     }
-}
+};
 
 //DELETE
 const deleteProductController = async (req, res) => {
     const { pid } = req.params
     try {
-        const product = await Product.findByIdAndDelete(pid)
-        const file = product.thumbnail.split("/").pop()
-        fs.unlinkSync(`${__dirname}/../../public/storage/products/${file}`)
-        if (!product) {
-            throw { error: `The product with ID ${pid} doesnt exist` }
-        }
+        await productService.deleteProductById(pid)
         res.status(201).send({ message: 'Delete succefully' })
     } catch (error) {
-        res.status(404).send(error)
+        res.status(500).send({ true: false, msg: error })
     }
 }
 
@@ -135,10 +113,7 @@ const deleteProductController = async (req, res) => {
 const getProductController = async (req, res) => {
     const { pid } = req.params
     try {
-        const product = await Product.findById(pid)
-        if (!product) {
-            throw { error: `The product with ID ${pid} doesnt exist` }
-        }
+        const product = await productService.getProductById(pid)
         res.status(200).send(product)
     } catch (error) {
         res.status(404).send(error)
@@ -147,10 +122,9 @@ const getProductController = async (req, res) => {
 
 const getProductsControllerRealTime = async (req, res) => {
     try {
-        const products = await Product.find()
-        const dataProducts = transformDataProducts(products)
+        const products = await productService.getProducts()
         res.render('realtimeproducts', {
-            products: dataProducts
+            products: products
         })
     } catch (error) {
         res.render('realtimeproducts', {
@@ -159,4 +133,26 @@ const getProductsControllerRealTime = async (req, res) => {
     }
 }
 
-module.exports = { getProductsController, getProductController, createProductController, updateProductController, deleteProductController, getProductsControllerRealTime, getProductsControllerView }
+// const backup = async (req, res) => {
+//     const body = req.body;
+//     const file = req.file;
+//     try {
+//         const product = await productService.createProduct(body, file);
+//         res.status(201).send(product);
+//     } catch (err) {
+//         if (file) {
+//             fs.unlinkSync(`${__dirname}/../../public/storage/products/${file.filename}`);
+//         }
+//         if (err.error) {
+//             res.status(404).send(err);
+//         } else {
+//             if (err.errors) {
+//                 res.status(404).send({ error: err.message });
+//             } else {
+//                 res.status(404).send({ error: 'Title or code already exists in the database' });
+//             }
+//         }
+//     }
+// }
+
+module.exports = { getProductsControllerWithoutPaginate, getProductsController, getProductController, createProductController, updateProductController, deleteProductController, getProductsControllerRealTime, getProductsControllerView }

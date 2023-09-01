@@ -17,14 +17,14 @@ router.post('/register', decodForm, passport.authenticate('register', { failureR
 });
 
 router.post('/login', decodForm, passport.authenticate('login', { failureRedirect: '/' }), (req, res) => {
-    res.status(200).redirect('/api/products');
+    res.status(200).redirect('/api/current');
 })
 
 router.get('/auth/github', passport.authenticate('auth-github', { scope: ['user:email'] }));
 
 router.get('/auth/github/callback', passport.authenticate('auth-github', { failureRedirect: '/' }), (req, res) => {
     req.session.user = req.user
-    res.status(200).redirect('/api/products');
+    res.status(200).redirect('/api/current');
 });
 
 module.exports = router;

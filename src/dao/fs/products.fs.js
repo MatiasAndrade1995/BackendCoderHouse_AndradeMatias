@@ -1,7 +1,6 @@
-//Primera Pre Entrega - Andrade Matias
 const fs = require('fs');
-class ProductManager {
 
+class Products {
     #products
 
     constructor() {
@@ -24,7 +23,22 @@ class ProductManager {
         }
     }
 
-    addProduct = async (title, description, price, code, stock, category, thumbnail, status = true) => {
+    getProductById = async (id) => {
+        try {
+            let res = await fs.promises.readFile(this.path, 'utf-8')
+            this.#products = (JSON.parse(res));
+            const objectWithId = this.#products.find(obj => obj.id == id)
+            if (objectWithId) {
+                return objectWithId;
+            } else {
+                return { error: "Not found product" }
+            }
+        } catch (res) {
+            return { error: "This file doesn´t exist" }
+        }
+    }
+
+    createProduct = async (title, description, price, code, stock, category, thumbnail, status = true) => {
         try {
             let res = await fs.promises.readFile(this.path, 'utf-8')
             this.#products = (JSON.parse(res));
@@ -37,7 +51,6 @@ class ProductManager {
                 console.log("Error file create")
             }
         }
-        console.log(title, description, price, code, stock, category, thumbnail, status)
         if (title === undefined || description === undefined || price === undefined || code === undefined || stock === undefined || category === undefined || typeof status !== "boolean") {
             if (typeof status !== "boolean") {
                 return { error: "Status is not boolean" };
@@ -85,7 +98,7 @@ class ProductManager {
 
     }
 
-    updateProduct = async (id, modify) => {
+    getProductByIdAndUpdate = async (id, modify) => {
         try {
             let res = await fs.promises.readFile(this.path, 'utf-8')
             this.#products = (JSON.parse(res));
@@ -93,7 +106,6 @@ class ProductManager {
             if (objectWithId) {
                 let indexProduct = this.#products.findIndex(el => el.id == id)
                 const objectModified = this.#products[indexProduct] = { ...this.#products[indexProduct], ...modify }
-                console.log(objectModified)
                 await fs.promises.writeFile(this.path, JSON.stringify(this.#products, null, 2), 'utf-8')
                 return (objectModified);
             } else {
@@ -104,22 +116,7 @@ class ProductManager {
         }
     };
 
-    getProductById = async (id) => {
-        try {
-            let res = await fs.promises.readFile(this.path, 'utf-8')
-            this.#products = (JSON.parse(res));
-            const objectWithId = this.#products.find(obj => obj.id == id)
-            if (objectWithId) {
-                return objectWithId;
-            } else {
-                return { error: "Not found product" }
-            }
-        } catch (res) {
-            return { error: "This file doesn´t exist" }
-        }
-    }
-
-    deleteProduct = async (id) => {
+    getProductByIdAndDelete = async (id) => {
         try {
             let res = await fs.promises.readFile(this.path, 'utf-8')
             this.#products = (JSON.parse(res));
@@ -147,4 +144,4 @@ class ProductManager {
     }
 }
 
-module.exports = ProductManager;
+module.exports = Products;

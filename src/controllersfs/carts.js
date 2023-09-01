@@ -1,5 +1,6 @@
-const ProductManagerInCart = require("../dao/fs/ProductManagerCart")
+const ProductManagerInCart = require("../dao/fs/carts.fs")
 const productManagerInCart = new ProductManagerInCart();
+
 const getProductsControllerCart = async (req, res) => {
     try {
         const { cid } = req.params

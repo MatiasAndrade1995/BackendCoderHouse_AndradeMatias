@@ -4,7 +4,8 @@ const LocalStrategy = require('passport-local').Strategy
 const GitHubStrategy = require('passport-github2').Strategy
 const User = require('../dao/models/users')
 const { hashPassword, compare } = require('../utils/handlePassword');
-const Cart = require('../dao/models/cart')
+const Carts = require("../dao/mongodb/carts.mongo");
+const cartService = new Carts()
 
 const initializePassport = () => {
     passport.use(
@@ -23,10 +24,11 @@ const initializePassport = () => {
                         return done(null, false, { message: 'User already exists' });
                     }
                     const hashPW = await hashPassword(password);
+                    let cart = await cartService.createCart({});
                     const data = {
                         ...userData,
                         password: hashPW,
-                        cartID: await Cart.create({})
+                        cartID: cart._id  
                     };
                     let result = await User.create(data);
                     return done(null, result);
@@ -48,6 +50,7 @@ const initializePassport = () => {
         async (req, username, password, done) => {
             try {
                 const user = await User.findOne({ email: username });
+                
                 const validPassword = await compare(password, user.password);
                 if (validPassword) {
                     return done(null, user);
@@ -74,15 +77,15 @@ const initializePassport = () => {
                     let user = await User.findOne({ email: `${profile._json.login}@github.com.ar` });
                     if (user == null) {
                         const hashPW = await hashPassword(profile._json.node_id)
+                        let cart = await cartService.createCart({});
                         let newUser = {
                             first_name: firstAndLastName[0].toString(),
                             last_name: firstAndLastName[1].toString(),
                             email: `${profile._json.login}@github.com.ar`,
                             age: 2023,
                             password: hashPW,
-                            cartID: await Cart.create({})
+                            cartID: cart._id 
                         };
-                        
                         let result = await User.create(newUser);
 
                         done(null, result);

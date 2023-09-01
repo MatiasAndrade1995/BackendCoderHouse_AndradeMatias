@@ -4,42 +4,39 @@ socket.on('Welcome', (data) => {
     console.log(data)
 })
 
-socket.on('refreshproducts', (data) => {
-    renderUpdateProducts(data)
-    renderUpdateProductsMenu(data)
 
-})
 
-socket.on('answer', (data) => {
-    showAnswer(data)
-})
 
-function showAnswer(data) {
-    const message = document.getElementById('message')
-    message.textContent = data.error ? data.error : `Se agrego con exito el producto ${data.title}`
-    setTimeout(() => {
-        message.textContent = ""
-    }, 3000)
-}
-
-function renderUpdateProducts(data) {
-    let htmlProducts = data.map(obj => `<p class="text-center products"> ${obj.title}</p>`).join(' ')
-    document.getElementById('products').innerHTML = htmlProducts
-}
-
-function renderUpdateProductsMenu(data) {
-    let htmlProductsInMenu = data.map(obj => `<option value="${obj.id}">${obj.title}</option>`).join(' ')
-    document.getElementById('options').innerHTML = htmlProductsInMenu
-}
-
-function captureValueId() {
+async function captureValueId() {
     let select = document.getElementById("options");
-    const product = { id: select.value, }
-    socket.emit('productDeleted', product)
-    return false
+    const pid = select.value;
+    console.log(`Try delete product ${pid}`)
+    try {
+        const resDeleted = await fetch(`/api/products/${pid}`, {
+            method: 'DELETE'
+        });
+        if (!resDeleted.ok) throw new Error('Failed to delete product');
+
+        const resGetProducts = await fetch('/api/allProducts', {
+            method: 'GET'
+        });
+        if (!resGetProducts.ok) throw new Error('Failed to get products');
+
+        const productsData = await resGetProducts.json();
+
+        let htmlProducts = productsData.map(obj => `<p class="text-center products"> ${obj.title}</p>`).join(' ');
+        document.getElementById('products').innerHTML = htmlProducts;
+
+        let htmlProductsInMenu = productsData.map(obj => `<option value="${obj.id}">${obj.title}</option>`).join(' ');
+        document.getElementById('options').innerHTML = htmlProductsInMenu;
+        console.log(`Product deleted ${pid}`)
+    } catch (error) {
+        console.log(error);
+    }
 }
 
-function handlesubmit(event) {
+
+async function handlesubmit(event) {
     event.preventDefault()
     const form = document.getElementById('formAddProduct')
     const inputTrue = document.getElementById('newProductStatusTrue')
@@ -62,11 +59,41 @@ function handlesubmit(event) {
         category: form.inputProductCategory.value,
         thumbnail: "file" //form.inputFile.files[0]
     }
-    socket.emit('productAdd', product)
+
+    try {
+        const resCreated = await fetch("/api/products", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(product)
+        });
+        if (!resCreated.ok) throw new Error('Failed to create product');
+
+        const resGetProducts = await fetch('/api/allProducts', {
+            method: 'GET'
+        });
+
+        if (!resGetProducts.ok) throw new Error('Failed to get products');
+
+        const productsData = await resGetProducts.json();
+
+        let htmlProducts = productsData.map(obj => `<p class="text-center products"> ${obj.title}</p>`).join(' ');
+        document.getElementById('products').innerHTML = htmlProducts;
+
+        let htmlProductsInMenu = productsData.map(obj => `<option value="${obj.id}">${obj.title}</option>`).join(' ');
+        document.getElementById('options').innerHTML = htmlProductsInMenu;
+        const message = document.getElementById('message')
+        message.textContent = `Se agregó con éxito el producto ${productsData[productsData.length - 1].title}`;
+        setTimeout(() => {
+            message.textContent = ""
+        }, 3000)
+    } catch (error) {
+        console.log(error);
+    }
 }
-function creatCart() {
-    socket.emit('requestnewcart', 'User request a new cart...')
-}
+
+
 function loadCart() {
     event.preventDefault()
     const cartID = document.querySelector('input[name="cartID"]').value;
@@ -97,7 +124,6 @@ async function captureValueIdProduct(pid) {
             body: JSON.stringify({ quantity: quantity })
         });
         if (!res.ok) throw res;
-        const json = await res.json();
     } catch (e) {
         console.log(e);
     }
@@ -117,8 +143,8 @@ function deleteProductCart(pid) {
             }
         })
         .then(data => {
-            console.log(data.res.products)
-            const productsCart = data.res.products
+            console.log(data)
+            const productsCart = data.products
             if (productsCart.length <= 0) {
                 let htmlProductsInCart = `<div ><h2 class="text-center">This cart is empty.</h2></div>`
                 document.getElementById("boxProductsCart").innerHTML = htmlProductsInCart;
@@ -149,3 +175,52 @@ function deleteAllProductCart(pid) {
     let htmlProductsInCart = `<div ><h2 class="text-center">This cart is empty.</h2></div>`
     document.getElementById("boxProductsCart").innerHTML = htmlProductsInCart;
 }
+
+
+function purchaseCart() {
+    let cartID = document.querySelector('#userEmail').getAttribute('data-cartid');
+    console.log(`Trying finish Cart : ${cartID}`);
+    fetch(`/api/carts/${cartID}/purchase`, {
+        method: 'POST'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok. Status: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            const productsCart = data[1].products
+            if (productsCart.length <= 0) {
+                let htmlProductsInCart = `<div ><h2 class="text-center">This cart is empty.</h2></div>`
+                document.getElementById("boxProductsCart").innerHTML = htmlProductsInCart;
+            } else {
+                let htmlProductsInCart = productsCart.map(obj => `<div ><h3 class="p-1">${obj.product.title} : Quantity - ${obj.quantity}</h3></div><input type="submit" class="mb-4 btn btn-danger" value="Delete" onclick="deleteProductCart('${obj.product._id}')"></input>`).join(' ');
+                document.getElementById("boxProductsCart").innerHTML = htmlProductsInCart;
+                const ticket = document.getElementById('ticket');
+                ticket.textContent = "Ticket:\n";
+                const ticketData = data[0];
+                ticket.innerHTML +=
+                    `<div class="ticket">
+                        <p class="line">Code: ${ticketData.code}</p>
+                        <p class="line">Date: ${ticketData.purchaser_datetime}</p>
+                        <p class="line">Amount: $${ticketData.amount}</p>
+                        <p class="line">Purchaser: ${ticketData.purchaser}</p>
+                        <p class="line">ID: ${ticketData._id}</p>
+                    </div>`;
+
+
+                setTimeout(() => {
+                    ticket.textContent = "";
+                }, 10000);
+            }
+        })
+
+        .catch(error => console.error('Error:', error.message));
+}
+
+
