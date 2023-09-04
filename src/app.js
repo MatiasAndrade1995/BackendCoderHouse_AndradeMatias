@@ -37,6 +37,7 @@ app.use('/api', require('./routes/products'))
 app.use('/api', require('./routes/carts'))
 app.use('/api', require('./routes/messages'))
 app.use('/api', require('./routes/sessions'))
+app.use('/api', require('./routes/mails'))
 app.get('/', login)
 
 // app.use('/images', require('./routes/multer'))
@@ -47,6 +48,7 @@ const Message = require('./dao/models/messages')
 
 //Import transformDataProducts
 const {transformDataChat } = require('./utils/transformdata')
+
 
 //Socket Import
 const { Server } = require('socket.io')
@@ -61,12 +63,14 @@ const handlebars = require('express-handlebars')
 
 //Import db
 const MongoManager = require('./dao/mongodb/db.js')
+const {verifyMail} = require('./utils/nodemailer')
 const classMongoDb = new MongoManager(config.urlMongo);
 
 //Views
 app.engine('handlebars', handlebars.engine())
 app.set('view engine', 'handlebars')
 app.set('views', __dirname + '/views')
+
 
 //Connection
 io.on('connection', (socket) => {
@@ -84,6 +88,7 @@ io.on('connection', (socket) => {
     })
 })
 
+verifyMail()
 const PORT = config.port || 3000
 server.listen(PORT, () => {
     console.log(`Server run on port http://localhost:${config.port}`)
