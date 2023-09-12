@@ -43,7 +43,7 @@ const createProductController = async (req, res) => {
         }
 
         console.error(error)
-        res.status(500).json({ error: 'Error al crear el producto' });
+        res.status(500).send({error: "Error to try create product"});
     }
 }
 
@@ -172,7 +172,7 @@ const validateFieldsProduct = (req, res, next) => {
 
     } catch (error) {
         console.error(error);
-        res.status(404).send({ error: error.code, message: error.message });
+        res.status(404).send({ error: error.message });
     }
 }
 
