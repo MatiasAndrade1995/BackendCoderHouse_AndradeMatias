@@ -4,9 +4,6 @@ socket.on('Welcome', (data) => {
     console.log(data)
 })
 
-
-
-
 async function captureValueId() {
     let select = document.getElementById("options");
     const pid = select.value;
@@ -68,7 +65,11 @@ async function handlesubmit(event) {
             },
             body: JSON.stringify(product)
         });
-        if (!resCreated.ok) throw new Error('Failed to create product');
+
+        if (!resCreated.ok) {
+            const errorResponse = await resCreated.json();
+            throw new Error(errorResponse.error || 'Failed to create product');
+        }
 
         const resGetProducts = await fetch('/api/allProducts', {
             method: 'GET'
@@ -90,6 +91,12 @@ async function handlesubmit(event) {
         }, 3000)
     } catch (error) {
         console.log(error);
+        const errorMessage = error.message || 'Error desconocido';
+        const message = document.getElementById('message');
+        message.textContent = errorMessage;
+        setTimeout(() => {
+            message.textContent = '';
+        }, 3000);
     }
 }
 
@@ -190,7 +197,6 @@ function purchaseCart() {
             return response.json();
         })
         .then(data => {
-            console.log(data);
             if (data.error) {
                 throw new Error(data.error);
             }
@@ -200,12 +206,13 @@ function purchaseCart() {
                 document.getElementById("boxProductsCart").innerHTML = htmlProductsInCart;
             } else {
                 let htmlProductsInCart = productsCart.map(obj => `<div ><h3 class="p-1">${obj.product.title} : Quantity - ${obj.quantity}</h3></div><input type="submit" class="mb-4 btn btn-danger" value="Delete" onclick="deleteProductCart('${obj.product._id}')"></input>`).join(' ');
-                document.getElementById("boxProductsCart").innerHTML = htmlProductsInCart;
-                const ticket = document.getElementById('ticket');
-                ticket.textContent = "Ticket:\n";
-                const ticketData = data[0];
-                ticket.innerHTML +=
-                    `<div class="ticket">
+                document.getElementById("boxProductsCart").innerHTML = htmlProductsInCart;    
+            }
+            const ticket = document.getElementById('ticket');
+            ticket.textContent = "Ticket:\n";
+            const ticketData = data[0];
+            ticket.innerHTML +=
+                `<div class="ticket">
                         <p class="line">Code: ${ticketData.code}</p>
                         <p class="line">Date: ${ticketData.purchaser_datetime}</p>
                         <p class="line">Amount: $${ticketData.amount}</p>
@@ -214,10 +221,9 @@ function purchaseCart() {
                     </div>`;
 
 
-                setTimeout(() => {
-                    ticket.textContent = "";
-                }, 10000);
-            }
+            setTimeout(() => {
+                ticket.textContent = "";
+            }, 10000);
         })
 
         .catch(error => console.error('Error:', error.message));

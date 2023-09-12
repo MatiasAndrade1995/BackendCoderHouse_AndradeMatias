@@ -35,6 +35,12 @@ class Products {
         const product = await productsRepository.deleteProductById(id);
         return product;
     }
+
+    async getMockingProducts() {
+        const products = await productsRepository.getMockingProducts()
+        return products;
+    }
+
 }
 
 module.exports = Products;

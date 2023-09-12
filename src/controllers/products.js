@@ -1,6 +1,20 @@
 const Products = require('../dao/mongodb/products.mongo')
 const fs = require('fs')
+const EErros = require('../errors/messages/errors-enum');
+const { generateProductErrorInfo, generateProductErrorInfoUnique } = require('../errors/messages/user-creation-error.message');
+const CustomError = require('../errors/customErrors');
 const productService = new Products()
+
+const getMockingProducts = async (req, res) => {
+    try {
+        const products = await productService.getMockingProducts()
+        res.status(200).send(products)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+}
+
+
 
 //CREATE
 const getProductsControllerWithoutPaginate = async (req, res) => {
@@ -19,7 +33,7 @@ const createProductController = async (req, res) => {
     try {
         const product = await productService.createProduct(body, file);
         res.status(201).send(product);
-    } catch (err) {
+    } catch (error) {
         if (file) {
             try {
                 await fs.promises.unlink(`${__dirname}/../../public/storage/products/${file.filename}`);
@@ -28,17 +42,8 @@ const createProductController = async (req, res) => {
             }
         }
 
-        if (err.error) {
-            return res.status(404).send(err);
-        }
-
-        let errorMessage = 'An error occurred';
-        if (err.errors) {
-            errorMessage = err.message;
-        } else {
-            errorMessage = 'Title or code already exists in the database';
-        }
-        res.status(404).send({ error: errorMessage });
+        console.error(error)
+        res.status(500).json({ error: 'Error al crear el producto' });
     }
 }
 
@@ -133,6 +138,48 @@ const getProductsControllerRealTime = async (req, res) => {
     }
 }
 
+const validateFieldsProduct = (req, res, next) => {
+    try {
+        const {title, description, code, price, stock, category} = req.body
+        const isEmptyOrSpaces = (str) => {
+            return str === null || str.match(/^ *$/) !== null;
+        };
+
+        if (
+            isEmptyOrSpaces(title) ||
+            isEmptyOrSpaces(description) ||
+            isEmptyOrSpaces(code) ||
+            isEmptyOrSpaces(price) ||
+            isEmptyOrSpaces(stock) ||
+            isEmptyOrSpaces(category)
+        ) {
+            CustomError.createError({
+                name: "Product creation error",
+                cause: generateProductErrorInfo({
+                    title,
+                    description,
+                    code,
+                    price,
+                    stock,
+                    category
+                }),
+                message: "Error to create product",
+                code: EErros.INVALID_TYPES_ERROR
+            });
+        }
+
+        next();
+
+    } catch (error) {
+        console.error(error);
+        res.status(404).send({ error: error.code, message: error.message });
+    }
+}
+
+
+
+
+
 // const backup = async (req, res) => {
 //     const body = req.body;
 //     const file = req.file;
@@ -155,4 +202,4 @@ const getProductsControllerRealTime = async (req, res) => {
 //     }
 // }
 
-module.exports = { getProductsControllerWithoutPaginate, getProductsController, getProductController, createProductController, updateProductController, deleteProductController, getProductsControllerRealTime, getProductsControllerView }
+module.exports = { getProductsControllerWithoutPaginate, getProductsController, getProductController, createProductController, updateProductController, deleteProductController, getProductsControllerRealTime, getProductsControllerView, getMockingProducts, validateFieldsProduct }

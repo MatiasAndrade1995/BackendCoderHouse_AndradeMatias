@@ -6,9 +6,10 @@ const creatCartController = async (req, res) => {
     const body = req.body
     try {
         const newCart = await cartService.createCart(body)
+        console.log(newCart)
         res.status(200).send(newCart)
     } catch (error) {
-        res.status(404).send({ error: 'Error al crear Cart' })
+        res.status(404).send({ error: 'Error trying create Cart' })
     }
 }
 

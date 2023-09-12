@@ -12,25 +12,30 @@ class CartsRepository {
     async createCart(body) {
         const cartdto = new CartDTO(body);
         const newCart = await cartsModel.create(cartdto)
+        if (!newCart) return { status: 404, answer: 'Error trying to create cart' }
         return newCart;
     }
 
     async getCart() {
         const carts = await cartsModel.find()
-        return carts;
+        if (!carts) return { status: 404, answer: 'Error trying to find carts' };
+        return  { status: 200, answer: carts };
     }
 
     async getProductInCart(cid) {
         const cartSelectedPopulated = await cartsModel.findById(cid).populate('products.product')
+        if (!cartSelectedPopulated) return { status: 404, answer: 'Error trying to find cart' };
         return JSON.stringify(cartSelectedPopulated, null, '\t');
     }
     async getCartId(cid) {
         const cart = await cartsModel.findById(cid)
+        if (!cart) return { status: 404, answer: 'Error trying to find cart' };
         return cart;
     }
 
     async getProductsInCartId(cid) {
         const productsInCart = await cartsModel.findById(cid).populate('products.product');
+        if (!productsInCart) return { status: 404, answer: 'Error trying to find cart' };
         const { products } = productsInCart
         const dataCartId = transformDataCart(products)
         return dataCartId;
@@ -39,7 +44,13 @@ class CartsRepository {
     async productsInCart(cid, pid, quantity) {
 
         const product = await productsModel.findById(pid);
+        if (!product) {
+            return { status: 404, answer: 'Error trying to find product' };
+        }
         const cart = await cartsModel.findById(cid);
+        if (!cart) { 
+            return { status: 404, answer: 'Error trying to find cart' };
+        } 
 
         const productInCartIndex = cart.products.findIndex(entry => entry.product.toString() === pid);
 
@@ -47,17 +58,20 @@ class CartsRepository {
             if (productInCartIndex !== -1) {
                 const existingQuantity = cart.products.find(entry => entry.product.toString() === pid)?.quantity || 0;
                 const totalQuantity = existingQuantity + quantity;
-
                 cart.products[productInCartIndex].quantity = totalQuantity;
                 await cart.save();
                 const cartUpdated = await cartsModel.findById(cid).populate('products.product');
-
+                if (!cartUpdated) {
+                    return { status: 404, answer: 'Error trying to find cart' };
+                 } 
                 return { status: 201, answer: JSON.stringify(cartUpdated, null, '\t') };
             } else {
                 cart.products.push({ product: product._id, quantity: quantity });
                 await cart.save();
                 const cartUpdated = await cartsModel.findById(cid).populate('products.product');
-
+                if (!cartUpdated) {
+                    return { status: 404, answer: 'Error trying to find cart' };
+                 } 
                 return { status: 201, answer: JSON.stringify(cartUpdated, null, '\t') };
             }
         } else {
@@ -68,17 +82,26 @@ class CartsRepository {
 
     async deleteProductsCart(cid) {
         const cart = await cartsModel.findById(cid);
+        if (!cart) {
+            return { status: 404, answer: 'Error trying to find cart' };
+        }
         if (cart.products.length > 0) {
             if (cart) {
                 cart.products.splice(0, cart.products.length);
                 await cart.save();
                 const cartUpdated = await cartsModel.findById(cid).populate('products.product')
+                if (!cartUpdated) {
+                    return { status: 404, answer: 'Error trying to find cart' };
+                }
                 return { status: 201, answer: cartUpdated };
             } else {
-                return { status: 404, answer: 'Error try found cart or product' };
+                return { status: 404, answer: 'Error try find cart' };
             }
         } else {
             const cartUpdated = await cartsModel.findById(cid).populate('products.product')
+            if (!cartUpdated) {
+                return { status: 404, answer: 'Error try find cart' };
+            }
             return { status: 404, error: 'Cart empty', answer: cartUpdated };
         }
     }
@@ -165,6 +188,10 @@ class CartsRepository {
             amount: totalAmount,
             purchaser: user.email
         });
+
+        if (!ticket) {
+            throw new Error('Error trying create ticket');
+        }
 
         return [
             ticket,
