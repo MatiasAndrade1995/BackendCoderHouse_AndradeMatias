@@ -6,7 +6,7 @@ const creatCartController = async (req, res) => {
     const body = req.body
     try {
         const newCart = await cartService.createCart(body)
-        console.log(newCart)
+        req.logger.info(newCart)
         res.status(200).send(newCart)
     } catch (error) {
         res.status(404).send({ error: 'Error trying create Cart' })
@@ -38,7 +38,7 @@ const getCartId = async (req, res) => {
         const cart = await cartService.getCartId(cid)
         res.status(200).send(cart)
     } catch(error) {
-        console.log(error)
+        req.logger.error(error)
     }
 }
 

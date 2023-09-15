@@ -13,7 +13,7 @@ class CartDTO {
                 quantity: product.quantity
             })) : [];
         } else {
-            console.log('Invalid cart data');
+            logger.error('Invalid cart data');
         }
     }
 }

@@ -7,7 +7,7 @@ const session = require ('express-session')
 const passport = require('passport')
 const { initializePassport } = require('./config/passport')
 const { login } = require('./controllers/sessions')
-const addLogger = require('./config/loggerCustom')
+const {addLogger, logger} = require('./config/loggerCustom')
 const MongoStore = require('connect-mongo')
 
 app.use(cors())
@@ -78,7 +78,7 @@ app.set('views', __dirname + '/views')
 
 //Connection
 io.on('connection', (socket) => {
-    console.log('New user connected in App')
+    logger.info('New user connected in App')
     socket.emit('Welcome', 'Hello, welcome new user')
     socket.on('SendMessage', async (data) => {
         try {
@@ -87,7 +87,7 @@ io.on('connection', (socket) => {
             const dataMessages = transformDataChat(messages)
             socket.emit('refreshmessages', dataMessages)
         } catch (err) {
-            console.log(err)
+            logger.error(err)
         }
     })
 })
@@ -95,6 +95,6 @@ io.on('connection', (socket) => {
 verifyMail()
 const PORT = config.port || 3000
 server.listen(PORT, () => {
-    console.log(`Server run on port http://localhost:${config.port}`)
+    logger.http(`Server run on port http://localhost:${config.port}`)
     classMongoDb.connectionMongoDb()
 })

@@ -2,7 +2,8 @@ const productsModel = require('../models/products');
 const ProductDTO = require('../dto/products.dto');
 const fs = require('fs');
 const { transformDataProducts } = require('../../utils/transformdata');
-const { faker } = require("@faker-js/faker")
+const { faker } = require("@faker-js/faker");
+const { logger } = require('../../config/loggerCustom');
 
 class ProductsRepository {
     constructor() { }
@@ -22,10 +23,10 @@ class ProductsRepository {
                 })
                 mockingProducts.push(product)
             }
-            console.log(mockingProducts.length)
+            logger.info(mockingProducts.length)
             return mockingProducts
         } catch (error) {
-            console.log(error)
+            logger.error(error)
         }
     }
 
@@ -110,7 +111,7 @@ class ProductsRepository {
                 fs.unlinkSync(`${__dirname}/../../public/storage/products/${file}`);
             }
         } else {
-            console.log("Product has no thumbnail.");
+            logger.warning("Product has no thumbnail.");
         }
         return product;
     }

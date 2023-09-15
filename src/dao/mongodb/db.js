@@ -1,4 +1,5 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const { logger } = require('../../config/loggerCustom');
 
 class MongoManager {
 
@@ -9,9 +10,9 @@ class MongoManager {
     connectionMongoDb()  {
             return mongoose.connect(this.url,{ useUnifiedTopology: true, useNewUrlParser: true })
                 .then(connect => {
-                    console.log('Conecction succefully')
+                    logger.info('Conecction succefully')
                 })
-                .catch(err => console.log(err)) 
+                .catch(err => logger.error(err)) 
     }
 }
 

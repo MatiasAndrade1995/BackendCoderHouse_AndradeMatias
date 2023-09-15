@@ -66,7 +66,15 @@ const productLogger = winston.createLogger({
     ]
 })
 
+let logger;
 
+if (config.environment === "production") {
+    logger = productLogger
+    // req.logger.info(`Prueba de log level info en produccion - ${req.method} en ${req.url} - at ${new Date().toLocaleDateString()} - ${new Date().toLocaleDateString()}`)
+} else {
+    logger = devLogger
+    // req.logger.debug(`Prueba de log level debug en desarrollo - ${req.method} en ${req.url} - at ${new Date().toLocaleDateString()} - ${new Date().toLocaleDateString()}`)
+}
 
 const addLogger = (req, res, next) => {
 
@@ -81,4 +89,7 @@ const addLogger = (req, res, next) => {
     next()
 }
 
-module.exports = addLogger;
+module.exports = {
+    addLogger,
+    logger
+}

@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer')
 const config = require('../config')
 const myDirname = require('./dirname')
+const { logger } = require('../config/loggerCustom')
 
 
 //USAR "to" en body para pasar mail al cual quiere llegar mensaje de prueba...
@@ -19,9 +20,9 @@ const transporter = nodemailer.createTransport({
 const verifyMail = () => {
     transporter.verify(function (error, succes) {
         if (error) {
-            console.log(error)
+            logger.error(error)
         } else {
-            console.log('Ok to messages')
+            logger.info('Ok to messages')
         }
     })
 }
@@ -42,14 +43,14 @@ const sendEmail = (req, res) => {
 
         const result = transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
-                console.log(error);
+                logger.error(error);
                 res.status(400).send({ message: 'Error', payload: error });
             }
-            console.log('Message sent: %s', info.messageId);
+           logger.info('Message sent: %s', info.messageId);
             res.send({ message: 'Success', payload: info });
         });
     } catch (error) {
-        console.log(error);
+        logger.error(error);
         res.status(500).send({ error, message: 'Error trying to send mail from ' + config.mail });
     }
 };
@@ -81,14 +82,14 @@ const sendEmailWithImages = (req, res) => {
 
         const result = transporter.sendMail(mailOptionsWithImages, (error, info) => {
             if (error) {
-                console.log(error);
+                logger.error(error);
                 res.status(400).send({ message: 'Error', payload: error });
             }
-            console.log('Message sent: %s', info.messageId);
+            logger.info('Message sent: %s', info.messageId);
             res.send({ message: 'Success', payload: info });
         });
     } catch (error) {
-        console.log(error);
+        logger.error(error);
         res.status(500).send({ error, message: 'Error trying to send mail from ' + config.mail });
     }
 };
