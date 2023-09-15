@@ -7,9 +7,11 @@ const session = require ('express-session')
 const passport = require('passport')
 const { initializePassport } = require('./config/passport')
 const { login } = require('./controllers/sessions')
+const addLogger = require('./config/loggerCustom')
 const MongoStore = require('connect-mongo')
 
 app.use(cors())
+app.use(addLogger)
 app.use(express.json())
 
 app.use(session({
@@ -33,6 +35,7 @@ const http = require('http')
 const server = http.createServer(app)
 
 //Import Routes
+app.use('/api', require('./routes/loggerTest'))
 app.use('/api', require('./routes/products'))
 app.use('/api', require('./routes/carts'))
 app.use('/api', require('./routes/messages'))
@@ -64,6 +67,7 @@ const handlebars = require('express-handlebars')
 //Import db
 const MongoManager = require('./dao/mongodb/db.js')
 const {verifyMail} = require('./utils/nodemailer')
+
 const classMongoDb = new MongoManager(config.urlMongo);
 
 //Views
@@ -92,6 +96,5 @@ verifyMail()
 const PORT = config.port || 3000
 server.listen(PORT, () => {
     console.log(`Server run on port http://localhost:${config.port}`)
-    config.nodeEnv === 'test' ? console.log('Test mode on...') : console.log('Production mode on...')
     classMongoDb.connectionMongoDb()
 })

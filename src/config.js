@@ -1,5 +1,28 @@
 const dotenv = require('dotenv');
-dotenv.config();
+const { Command } = require('commander')
+
+const program = new Command();
+
+program
+    .option('--dev', 'Modo desarrollo', 'development')
+    .option('--prod', 'Modo producción', 'production')
+
+program.parse();
+
+let environment;
+
+if (program.opts().dev == 'development') {
+    environment = 'production'
+} else {
+    environment = 'development'
+}
+
+
+console.log('Modo option: ' + environment)
+
+dotenv.config({
+    path: environment === 'production' ? './.env.production' : './.env.development'
+});
 
 module.exports = {
     port: process.env.PORT,
@@ -9,5 +32,6 @@ module.exports = {
     clientSecret: process.env.CLIENT_SECRET,
     secretBd: process.env.SECRET_BD,
     passMail: process.env.NODEMAILER,
-    mail: process.env.GMAIL
+    mail: process.env.GMAIL,
+    environment: environment
 };

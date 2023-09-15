@@ -15,7 +15,6 @@ const getMockingProducts = async (req, res) => {
 }
 
 
-
 //CREATE
 const getProductsControllerWithoutPaginate = async (req, res) => {
     try {
