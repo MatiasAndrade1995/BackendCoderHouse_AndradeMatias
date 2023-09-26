@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
         strict: true
     },
     rol: {
-        type: ['user', 'admin'],
+        type: ['user', 'admin', 'premium'],
         unique: false,
         default: 'user'
     },   

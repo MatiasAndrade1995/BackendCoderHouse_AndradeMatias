@@ -36,6 +36,10 @@ const productSchema = new mongoose.Schema({
     thumbnail: {
         type: String,
         required: true
+    },
+    owner: {
+        type: String,
+        default: 'admin'
     }
 }, {
     timestamps: true,
@@ -45,5 +49,3 @@ const productSchema = new mongoose.Schema({
 productSchema.plugin(mongoosePaginate)
 const Product = mongoose.model('Product', productSchema)
 module.exports = Product;
-
-//maxlength: [10, 'Limit characteres superate. Max 10']

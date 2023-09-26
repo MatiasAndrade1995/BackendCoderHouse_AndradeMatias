@@ -41,6 +41,7 @@ app.use('/api', require('./routes/carts'))
 app.use('/api', require('./routes/messages'))
 app.use('/api', require('./routes/sessions'))
 app.use('/api', require('./routes/mails'))
+app.use('/api', require('./routes/users'))
 app.get('/', login)
 
 // app.use('/images', require('./routes/multer'))

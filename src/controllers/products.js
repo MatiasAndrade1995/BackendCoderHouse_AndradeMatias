@@ -29,8 +29,9 @@ const getProductsControllerWithoutPaginate = async (req, res) => {
 const createProductController = async (req, res) => {
     const body = req.body;
     const file = req.file;
+    const email = req.user.email
     try {
-        const product = await productService.createProduct(body, file);
+        const product = await productService.createProduct(email, body, file);
         res.status(201).send(product);
     } catch (error) {
         if (file) {
@@ -104,14 +105,19 @@ const updateProductController = async (req, res) => {
 
 //DELETE
 const deleteProductController = async (req, res) => {
-    const { pid } = req.params
+    const { pid } = req.params;
+    const email = req.user.email;
     try {
-        await productService.deleteProductById(pid)
-        res.status(201).send({ message: 'Delete succefully' })
+        const answer = await productService.deleteProductById(pid, email);
+        if (answer.error) {
+            return res.status(404).send({ ok: false, msg: answer.error });
+        }
+        res.status(201).send({ ok: true, msg: answer.msg });
     } catch (error) {
-        res.status(500).send({ true: false, msg: error })
+        res.status(500).send({ ok: false, msg: error.message }); // Cambio aquí
     }
 }
+
 
 //READ ONE
 const getProductController = async (req, res) => {

@@ -34,5 +34,6 @@ module.exports = {
     secretBd: process.env.SECRET_BD,
     passMail: process.env.NODEMAILER,
     mail: process.env.GMAIL,
+    jwt: process.env.PASSJWT,
     environment: environment
 };

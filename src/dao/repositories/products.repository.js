@@ -4,6 +4,8 @@ const fs = require('fs');
 const { transformDataProducts } = require('../../utils/transformdata');
 const { faker } = require("@faker-js/faker");
 const { logger } = require('../../config/loggerCustom');
+const User = require('../models/users');
+const { formNewUser } = require('../../controllers/sessions');
 
 class ProductsRepository {
     constructor() { }
@@ -63,17 +65,30 @@ class ProductsRepository {
         return product;
     }
 
-    async createProduct(body, file) {
+    async createProduct(email, body, file) {
         if (file) {
             body.thumbnail = `http://localhost:8080/storage/products/${file.filename}`;
         }
-        const productdto = new ProductDTO(body);
-        const product = await productsModel.create(productdto);
-        if (!product) {
-            return { error: `Error trying create product`, answer: product };
+        const user = await User.findOne({ email: email });
+        if (!user) {
+            return { error: `User with email ${email} not found`, answer: null };
         }
+        let product; 
+
+        if (user.rol.includes('premium')) {
+            const productdto = new ProductDTO(body);
+            productdto.owner = email;
+            product = await productsModel.create(productdto); 
+            if (!product) {
+                return { error: `Error trying to create product`, answer: product };
+            }
+        } else {
+            return { error: `User with email ${email} is not premium`, answer: 'User denied' };
+        }
+
         return product;
     }
+
 
     async updateProductById(pid, body, file) {
         const dataReplace = {
@@ -100,10 +115,22 @@ class ProductsRepository {
         return productReplaced;
     }
 
-    async deleteProductById(id) {
-        const product = await productsModel.findByIdAndDelete(id);
+    async deleteProductById(id, email) {
+        const user = await User.findOne({ email: email });
+        const product = await productsModel.findById(id);
+        const productOwner = product.owner;
+        if (!user) {
+            return { error: `Error  user not found`};
+        }
         if (!product) {
-            return { error: `Error trying delete product`, answer: product };
+            return { error: `Error product not found`};
+        }
+        if (!user.rol.includes('admin') && email !== productOwner) {
+            return { error: `Access denied for deleted product`};
+        }
+        const productDeleted = await productsModel.findByIdAndDelete(id);
+        if (!productDeleted) {
+            return { error: `Error trying delete product` };
         }
         if (product.thumbnail !== 'file') {
             const file = product.thumbnail.split("/").pop();
@@ -113,7 +140,7 @@ class ProductsRepository {
         } else {
             logger.warning("Product has no thumbnail.");
         }
-        return product;
+        return { msg: `Product deleted...` }
     }
 }
 

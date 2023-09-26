@@ -64,11 +64,12 @@ const getProductsInCartIdController = async (req, res) => {
 const productsInCartController = async (req, res) => {
     const { cid, pid } = req.params;
     const { quantity } = req.body;
+    const email = req.user.email;
     try {
-        const productsInCart = await cartService.productsInCart(cid, pid, quantity)
-        res.status(productsInCart.status).send(productsInCart.answer)
+        const answer = await cartService.productsInCart(email, cid, pid, quantity)
+        res.status(answer.status).send({ ok: answer.ok, msg: answer.msg })
     } catch (error) {
-        res.status(500).send({ error: 'Error in server' });
+        res.status(500).send({ok: false, msg: 'Error in server' });
     }
 };
 

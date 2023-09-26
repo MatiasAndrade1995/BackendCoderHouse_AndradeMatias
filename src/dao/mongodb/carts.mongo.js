@@ -29,9 +29,9 @@ class Carts {
         return cart;
     }
 
-    async productsInCart(cid, pid, quantity) {
-        const cart = await cartsRepository.productsInCart(cid, pid, quantity);
-        return cart;
+    async productsInCart(email, cid, pid, quantity) {
+        const answer = await cartsRepository.productsInCart(email, cid, pid, quantity);
+        return answer;
     }
 
     async deleteProductsCart(cid) {

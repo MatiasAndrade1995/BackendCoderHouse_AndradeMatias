@@ -5,6 +5,7 @@ const productsModel = require('../models/products')
 const usersModel = require('../models/users')
 const { transformDataCart } = require('../../utils/transformdata');
 const uuid = require('uuid');
+const User = require('../models/users')
 
 class CartsRepository {
     constructor() { }
@@ -41,42 +42,47 @@ class CartsRepository {
         return dataCartId;
     }
 
-    async productsInCart(cid, pid, quantity) {
-
+    async productsInCart(email, cid, pid, quantity) {
         const product = await productsModel.findById(pid);
-        if (!product) {
-            return { status: 404, answer: 'Error trying to find product' };
-        }
-        const cart = await cartsModel.findById(cid);
-        if (!cart) { 
-            return { status: 404, answer: 'Error trying to find cart' };
-        } 
-
-        const productInCartIndex = cart.products.findIndex(entry => entry.product.toString() === pid);
-
-        if (product) {
-            if (productInCartIndex !== -1) {
-                const existingQuantity = cart.products.find(entry => entry.product.toString() === pid)?.quantity || 0;
-                const totalQuantity = existingQuantity + quantity;
-                cart.products[productInCartIndex].quantity = totalQuantity;
-                await cart.save();
-                const cartUpdated = await cartsModel.findById(cid).populate('products.product');
-                if (!cartUpdated) {
-                    return { status: 404, answer: 'Error trying to find cart' };
-                 } 
-                return { status: 201, answer: JSON.stringify(cartUpdated, null, '\t') };
-            } else {
-                cart.products.push({ product: product._id, quantity: quantity });
-                await cart.save();
-                const cartUpdated = await cartsModel.findById(cid).populate('products.product');
-                if (!cartUpdated) {
-                    return { status: 404, answer: 'Error trying to find cart' };
-                 } 
-                return { status: 201, answer: JSON.stringify(cartUpdated, null, '\t') };
+        const productOwner = product.owner;
+        if (email !== productOwner) {
+            if (!product) {
+                return { ok: false, status: 404, msg: 'Error trying to find product' };
             }
+            const cart = await cartsModel.findById(cid);
+            if (!cart) {
+                return { ok: false, status: 404, msg: 'Error trying to find cart' };
+            }
+
+            const productInCartIndex = cart.products.findIndex(entry => entry.product.toString() === pid);
+
+            if (product) {
+                if (productInCartIndex !== -1) {
+                    const existingQuantity = cart.products.find(entry => entry.product.toString() === pid)?.quantity || 0;
+                    const totalQuantity = existingQuantity + quantity;
+                    cart.products[productInCartIndex].quantity = totalQuantity;
+                    await cart.save();
+                    const cartUpdated = await cartsModel.findById(cid).populate('products.product');
+                    if (!cartUpdated) {
+                        return { ok: false, status: 404, msg: 'Error trying to find cart' };
+                    }
+                    return { ok: true, status: 201, msg: `Product ${product.title} has been add in your cart`};
+                } else {
+                    cart.products.push({ product: product._id, quantity: quantity });
+                    await cart.save();
+                    const cartUpdated = await cartsModel.findById(cid).populate('products.product');
+                    if (!cartUpdated) {
+                        return { ok: false, status: 404, msg: 'Error trying to find cart' };
+                    }
+                    return { ok: true, status: 201, msg: JSON.stringify(cartUpdated, null, '\t') };
+                }
+            } else {
+                return { ok: false, status: 404, msg: 'Error trying to find product' };
+            }  
         } else {
-            return { status: 404, answer: 'Error trying to find product' };
+            return { ok: false, status: 404, msg: `Error, owner can not add product in his cart...` };
         }
+        
     }
 
 

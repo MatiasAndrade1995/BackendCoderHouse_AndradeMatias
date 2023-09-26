@@ -29,4 +29,3 @@ const cartSchema = new mongoose.Schema({
 cartSchema.plugin(mongoosePaginate)
 const Cart = mongoose.model('Cart', cartSchema)
 module.exports = Cart;
-

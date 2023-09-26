@@ -21,8 +21,8 @@ class Products {
         return product;
     }
 
-    async createProduct(productdto, file) {
-        const product = await productsRepository.createProduct(productdto, file);
+    async createProduct(email, productdto, file) {
+        const product = await productsRepository.createProduct(email, productdto, file);
         return product;
     }
 
@@ -31,9 +31,9 @@ class Products {
         return productReplaced;
     }
 
-    async deleteProductById(id) {
-        const product = await productsRepository.deleteProductById(id);
-        return product;
+    async deleteProductById(id , email) {
+        const answer = await productsRepository.deleteProductById(id, email);
+        return answer;
     }
 
     async getMockingProducts() {
