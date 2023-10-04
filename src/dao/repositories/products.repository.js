@@ -50,9 +50,6 @@ class ProductsRepository {
 
     async getProducts() {
         const products = await productsModel.find();
-        if (!products) {
-            return { status: 404, error: 'Error try found products', answer: products };
-        }
         const dataProducts = transformDataProducts(products);
         return dataProducts;
     }
@@ -60,9 +57,9 @@ class ProductsRepository {
     async getProductById(pid) {
         const product = await productsModel.findById(pid);
         if (!product) {
-            return { error: `The product with ID ${pid} doesn't exist`, answer: product  };
+            return { ok: false, error: `The product with ID ${pid} doesn't exist`};
         }
-        return product;
+        return { ok: true, product };
     }
 
     async createProduct(email, body, file) {
@@ -71,7 +68,7 @@ class ProductsRepository {
         }
         const user = await User.findOne({ email: email });
         if (!user) {
-            return { error: `User with email ${email} not found`, answer: null };
+            return { ok: false, status: 404, error: `User with email ${email} not found`};
         }
         let product; 
 
@@ -80,10 +77,10 @@ class ProductsRepository {
             productdto.owner = email;
             product = await productsModel.create(productdto); 
             if (!product) {
-                return { error: `Error trying to create product`, answer: product };
+                return { ok: false, status: 500, error: `Error trying to create product`};
             }
         } else {
-            return { error: `User with email ${email} is not premium`, answer: 'User denied' };
+            return { ok: false, status: 403, error: `User with email ${email} is not premium`};
         }
 
         return product;

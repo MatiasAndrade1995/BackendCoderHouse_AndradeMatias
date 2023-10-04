@@ -21,7 +21,7 @@ const getProductsControllerWithoutPaginate = async (req, res) => {
         const products = await productService.getProducts()
         res.status(200).send(products)
     } catch (error) {
-        res.status(500).send(error)
+        res.status(500).send('Internal error')
     }
 
 }
@@ -32,6 +32,9 @@ const createProductController = async (req, res) => {
     const email = req.user.email
     try {
         const product = await productService.createProduct(email, body, file);
+        if (product.ok == false) {
+            return res.status(product.status).send(product.error);    
+        }
         res.status(201).send(product);
     } catch (error) {
         if (file) {
@@ -124,22 +127,24 @@ const getProductController = async (req, res) => {
     const { pid } = req.params
     try {
         const product = await productService.getProductById(pid)
-        res.status(200).send(product)
+        if (product.ok == true) {
+            return res.status(200).send(product)
+        } else {
+            return res.status(404).send(product.error)
+        }
     } catch (error) {
-        res.status(404).send(error)
+        res.status(500).send('Internal error')
     }
 }
 
 const getProductsControllerRealTime = async (req, res) => {
     try {
         const products = await productService.getProducts()
-        res.render('realtimeproducts', {
+        res.status(200).render('realtimeproducts', {
             products: products
         })
     } catch (error) {
-        res.render('realtimeproducts', {
-            error: 'Error'
-        })
+        res.status(500).send('Internal error')
     }
 }
 

@@ -8,9 +8,9 @@ const { authloginsession, isAdminMiddleware, isUserMiddleware } = require('../co
 
 router.get("/products", authloginsession, isUserMiddleware, getProductsControllerView)
 router.get('/realtimeproducts', isAdminMiddleware, getProductsControllerRealTime)
-router.get("/products/:pid", isUserMiddleware, getProductController)
+router.get("/product/:pid", isUserMiddleware, getProductController)
 router.get("/allProducts", getProductsControllerWithoutPaginate)
-router.post("/products", isAdminMiddleware, uploadMulter.single('thumbnail'),validateFieldsProduct, createProductController)
+router.post("/createProduct", isAdminMiddleware, uploadMulter.single('thumbnail'),validateFieldsProduct, createProductController)
 router.put("/products/:pid", isAdminMiddleware, uploadMulter.single('thumbnail'), updateProductController)
 router.delete("/products/:pid", isAdminMiddleware, deleteProductController)
 router.get("/mockingproducts", getMockingProducts)

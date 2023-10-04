@@ -47,7 +47,7 @@ async function authloginsession(req, res, next) {
         if (req.isAuthenticated()) {
             next()
         } else {
-            res.send('You need connect first')
+            res.status(400).res.send('You need connect first')
         }
     } catch {
         res.status(401).send('Error in authetication')
@@ -95,7 +95,8 @@ const isAdminMiddleware = (req, res, next) => {
     if (req.user && (req.user.rol.includes('admin') || req.user.rol.includes('premium'))) {
         next();
     } else {
-        res.status(403).send('Access denied');
+        console.log(req.user.email)
+        res.status(403).send({ ok: false, error: `User with email ${req.user.email} is not premium` });
     }
 };
 

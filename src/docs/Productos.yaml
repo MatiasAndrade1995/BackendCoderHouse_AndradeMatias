@@ -1,0 +1,160 @@
+paths:
+  /api/products/:
+    get:
+      summary: Obtiene todos los productos para vista User
+      tags:
+        - Products
+      responses:
+        "200":
+          description: 'Realiza render a la página de handlebars viewproducts en un objeto que contiene los productos y los datos del user'
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#components/schemas/Product'
+        "Middleware 400":
+          description: 'You need connect first'
+        "Middleware 401":
+          description: 'Error in authetication'
+        "Middleware 403":
+          description: 'Access denied, you have not rol user or premium'
+        "500":
+          description: '{error: Error reading products indicate}'
+  /api/realtimeproducts/:
+    get:
+      summary: Obtiene todos los productos para vista Admin y/o User premium
+      tags:
+        - Products
+      responses:
+        "200":
+          description: 'Realiza render a la página de handlebars realtimeproducts en un objeto que contiene los productos'
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#components/schemas/Product'
+        "Middleware 403":
+          description: 'Access denied, you have not rol user or premium'
+        "500":
+          description: 'Internal error'
+  /api/product/{pid}:
+    get:
+      summary: Obtiene un producto especifico buscado por Id
+      tags:
+        - Product id
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: id del producto que se desea buscar
+          schema:
+            $type: String
+      responses:
+        "200":
+          description: 'Responde con el producto encontrado en un objeto'
+          content:
+            application/json:
+              schema:
+                  $ref: '#components/schemas/Product'
+
+        "Middleware 403":
+          description: 'Access denied, you have not rol user or premium'
+        "404":
+          description: 'The product with ID ${pid} doesn t exist'
+        "500":
+          description: 'Internal error'
+  /api/allProducts/:
+    get:
+      summary: Obtiene todos los productos
+      tags:
+        - Products
+      responses:
+        "200":
+          description: 'Responde con un array de los productos'
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#components/schemas/Product'
+        "500":
+          description: 'Internal error'
+  /api/createProduct/:
+    post:
+      summary: Crea un producto nuevo
+      tags:
+        - Creat product
+      responses:
+        "201":
+          description: 'Responde con el producto creado'
+          content:
+            application/json:
+              schema:
+                  $ref: '#components/schemas/Product'
+
+        "Middleware 403":
+          description: 'Access denied'
+        "403":
+          description: 'User with email ${email} is not premium'
+        "Middleware 404":
+          description: 'Error to create product'
+        "404":
+          description: 'User with email ${email} not found'
+        "500":
+          description: 'Error to try create product'
+
+
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: Id autogenerado de mongo
+        title: 
+          type: String,
+          description: Nombre del producto
+        description: 
+          type: String,
+          description: Descripción del producto
+        code: 
+          type: String,
+          description: Código del producto
+        price: 
+          type: Number,
+          description: Precio del producto
+        status: 
+          type: Boolean,
+          description: Estado del producto
+        stock: 
+          type: String,
+          description: Cantidad disponible del producto
+        category: 
+          type: String,
+          description: Categoria del producto
+        thumbnail: 
+          type: String,
+          description: Imagen del producto
+        owner: 
+          type: String,
+          description: Creador del producto
+      example:
+        _id: ObjectId("6512fce8413cb83b38fb3cc9")
+        title: "Licensed Steel Bike"
+        description: "The Apollotech B340 is an affordable wireless mouse with reliable connectivity, 12 months battery life and modern design"
+        code: "43910"
+        price: 556
+        status: true
+        stock: 2
+        category: "Health"
+        thumbnail: "https://loremflickr.com/640/480?lock=5986278562594816"
+        owner: "admin"
+
+        
+
+   
+
