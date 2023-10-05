@@ -92,11 +92,10 @@ class ProductsRepository {
             ...body,
             thumbnail: file ? `http://localhost:8080/storage/products/${file.filename}` : body.thumbnail
         };
-
         if (file) {
             const product = await productsModel.findById(pid);
             if (!product) {
-                return { error: `Error trying find product`, answer: product };
+                return { ok: false, error: `Error trying find product`,  status: 404};
             }
             if (product.thumbnail !== 'file') {
                 const nameFile = product.thumbnail.split("/").pop();
@@ -107,9 +106,9 @@ class ProductsRepository {
         const productdto = new ProductDTO(dataReplace);
         const productReplaced = await productsModel.findByIdAndUpdate(pid, productdto, { new: true });
         if (!productReplaced) {
-            return { error: `Error trying update product`, answer: productReplaced };
+            return { ok: false, error: `Error trying update product`,status: 406 };
         }
-        return productReplaced;
+        return { ok: true, data: productReplaced };
     }
 
     async deleteProductById(id, email) {

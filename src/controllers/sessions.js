@@ -95,7 +95,6 @@ const isAdminMiddleware = (req, res, next) => {
     if (req.user && (req.user.rol.includes('admin') || req.user.rol.includes('premium'))) {
         next();
     } else {
-        console.log(req.user.email)
         res.status(403).send({ ok: false, error: `User with email ${req.user.email} is not premium` });
     }
 };

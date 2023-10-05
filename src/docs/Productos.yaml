@@ -13,14 +13,25 @@ paths:
                 type: array
                 items: 
                   $ref: '#components/schemas/Product'
-        "Middleware 400":
-          description: 'You need connect first'
-        "Middleware 401":
-          description: 'Error in authetication'
-        "Middleware 403":
-          description: 'Access denied, you have not rol user or premium'
         "500":
           description: '{error: Error reading products indicate}'
+    post:
+      summary: Crea un producto nuevo
+      tags:
+        - Creat product
+      responses:
+        "201":
+          description: 'Responde con el producto creado'
+          content:
+            application/json:
+              schema:
+                  $ref: '#components/schemas/Product'
+        "403":
+          description: 'User with email ${email} is not premium'
+        "404":
+          description: 'User with email ${email} not found'
+        "500":
+          description: 'Error to try create product'
   /api/realtimeproducts/:
     get:
       summary: Obtiene todos los productos para vista Admin y/o User premium
@@ -35,11 +46,9 @@ paths:
                 type: array
                 items: 
                   $ref: '#components/schemas/Product'
-        "Middleware 403":
-          description: 'Access denied, you have not rol user or premium'
         "500":
           description: 'Internal error'
-  /api/product/{pid}:
+  /api/products/{pid}:
     get:
       summary: Obtiene un producto especifico buscado por Id
       tags:
@@ -58,13 +67,69 @@ paths:
             application/json:
               schema:
                   $ref: '#components/schemas/Product'
-
-        "Middleware 403":
-          description: 'Access denied, you have not rol user or premium'
         "404":
           description: 'The product with ID ${pid} doesn t exist'
         "500":
           description: 'Internal error'
+    put:
+      summary: Actualiza un producto nuevo
+      tags:
+        - Update product
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: Id del producto que se desea modificar
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#components/requestBodies/updateProduct'
+      responses:
+        "201":
+          description: 'Responde con el producto modificado'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        "403":
+          description: 'User with email ${req.user.email} is not premium'
+        "404":
+          description: 'Error trying to find product'
+        "406":
+          description: 'Error trying to update product'
+    delete:
+        summary: Borra un producto especifico buscado por Id
+        tags:
+          - Delete product id
+        parameters:
+          - name: pid
+            in: path
+            required: true
+            description: id del producto que se desea borrar
+            schema:
+              $type: String
+        responses:
+          "201":
+            description: 'Product deleted...'
+          "403":
+            description: 'User with email ${req.user.email} is not premium'
+          "404_ProductNotExists":
+            description: 'The product with ID ${pid} doesn t exist'
+          "404_ErrorDeleting":
+            description: 'Error trying to delete product'
+          "404_NotFound":
+            description: 'Error product not found'
+          "404_UserNotFound":
+            description: 'Error user not found'
+          "404_AccessDenied":
+            description: 'Access denied for deleted product'
+          "500":
+            description: 'Internal error'
+
   /api/allProducts/:
     get:
       summary: Obtiene todos los productos
@@ -80,33 +145,23 @@ paths:
                 items: 
                   $ref: '#components/schemas/Product'
         "500":
-          description: 'Internal error'
-  /api/createProduct/:
-    post:
-      summary: Crea un producto nuevo
+          description: 'Internal error'  
+  /api/mockingproducts/:
+    get:
+      summary: Crea 100 productos
       tags:
-        - Creat product
+        - Generate products
       responses:
-        "201":
-          description: 'Responde con el producto creado'
+        "200":
+          description: 'Responde con un array de los productos'
           content:
             application/json:
               schema:
+                type: array
+                items: 
                   $ref: '#components/schemas/Product'
-
-        "Middleware 403":
-          description: 'Access denied'
-        "403":
-          description: 'User with email ${email} is not premium'
-        "Middleware 404":
-          description: 'Error to create product'
-        "404":
-          description: 'User with email ${email} not found'
         "500":
-          description: 'Error to try create product'
-
-
-
+          description: 'Error generate products'  
 components:
   schemas:
     Product:
@@ -116,31 +171,31 @@ components:
           type: ObjectId
           description: Id autogenerado de mongo
         title: 
-          type: String,
+          type: String
           description: Nombre del producto
         description: 
-          type: String,
+          type: String
           description: Descripción del producto
         code: 
-          type: String,
+          type: String
           description: Código del producto
         price: 
-          type: Number,
+          type: Number
           description: Precio del producto
         status: 
-          type: Boolean,
+          type: Boolean
           description: Estado del producto
         stock: 
-          type: String,
+          type: String
           description: Cantidad disponible del producto
         category: 
-          type: String,
+          type: String
           description: Categoria del producto
         thumbnail: 
-          type: String,
+          type: String
           description: Imagen del producto
         owner: 
-          type: String,
+          type: String
           description: Creador del producto
       example:
         _id: ObjectId("6512fce8413cb83b38fb3cc9")
@@ -153,8 +208,44 @@ components:
         category: "Health"
         thumbnail: "https://loremflickr.com/640/480?lock=5986278562594816"
         owner: "admin"
-
-        
-
-   
-
+  requestBodies:
+    updateProduct:
+      type: object
+      properties:
+        title: 
+          type: String
+          description: Nombre del producto
+        description: 
+          type: String
+          description: Descripción del producto
+        code: 
+          type: String
+          description: Código del producto
+        price: 
+          type: Number
+          description: Precio del producto
+        status: 
+          type: Boolean
+          description: Estado del producto
+        stock: 
+          type: String
+          description: Cantidad disponible del producto
+        category: 
+          type: String
+          description: Categoria del producto
+        thumbnail: 
+          type: String
+          description: Imagen del producto
+        owner: 
+          type: String
+          description: Creador del producto
+      example:
+        title: "Test update product"
+        description: "This is a prove test update product"
+        code: "43910"
+        price: 5555
+        status: false
+        stock: 2222
+        category: "Health"
+        thumbnail: "https://loremflickr.com/640/480?lock=5986278562594816"
+        owner: "admin"

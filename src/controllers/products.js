@@ -10,7 +10,7 @@ const getMockingProducts = async (req, res) => {
         const products = await productService.getMockingProducts()
         res.status(200).send(products)
     } catch (error) {
-        res.status(500).send(error)
+        res.status(500).send('Error generate products')
     }
 }
 
@@ -92,11 +92,15 @@ const updateProductController = async (req, res) => {
     const { pid } = req.params;
     try {
         const product = await productService.getProductById(pid);
-        if (product) {
+        if (product.ok == true){
             const productReplaced = await productService.updateProductById(pid, body, file);
-            res.status(201).send(productReplaced);
+            if (productReplaced.ok == true) {
+                return res.status(201).send(productReplaced.data);
+            } else {
+                return res.status(productReplaced.status).send(productReplaced.error)
+            }
         } else {
-            throw { error: 'Not exist' };
+            throw { error: product.error };
         }
     } catch (error) {
         if (file) {
@@ -104,7 +108,9 @@ const updateProductController = async (req, res) => {
         }
         res.status(404).send(error);
     }
-};
+}
+
+
 
 //DELETE
 const deleteProductController = async (req, res) => {
@@ -117,7 +123,7 @@ const deleteProductController = async (req, res) => {
         }
         res.status(201).send({ ok: true, msg: answer.msg });
     } catch (error) {
-        res.status(500).send({ ok: false, msg: error.message }); // Cambio aquí
+        res.status(500).send({ ok: false, msg: error.message });
     }
 }
 
