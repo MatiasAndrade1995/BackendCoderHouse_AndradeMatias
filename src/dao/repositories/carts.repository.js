@@ -30,13 +30,12 @@ class CartsRepository {
     }
     async getCartId(cid) {
         const cart = await cartsModel.findById(cid)
-        if (!cart) return { status: 404, answer: 'Error trying to find cart' };
-        return cart;
+        if (!cart) return { ok: false, error: 'Error trying to find cart' };
+        return { ok: true, cart: cart  };
     }
 
     async getProductsInCartId(cid) {
         const productsInCart = await cartsModel.findById(cid).populate('products.product');
-        if (!productsInCart) return { status: 404, answer: 'Error trying to find cart' };
         const { products } = productsInCart
         const dataCartId = transformDataCart(products)
         return dataCartId;
@@ -89,7 +88,7 @@ class CartsRepository {
     async deleteProductsCart(cid) {
         const cart = await cartsModel.findById(cid);
         if (!cart) {
-            return { status: 404, answer: 'Error trying to find cart' };
+            return { ok: false, error: 'Error trying to find cart' };
         }
         if (cart.products.length > 0) {
             if (cart) {
@@ -97,23 +96,22 @@ class CartsRepository {
                 await cart.save();
                 const cartUpdated = await cartsModel.findById(cid).populate('products.product')
                 if (!cartUpdated) {
-                    return { status: 404, answer: 'Error trying to find cart' };
+                    return { ok: false, error: 'Error trying to update' };
                 }
-                return { status: 201, answer: cartUpdated };
+                return { ok: true, answer: cartUpdated };
             } else {
-                return { status: 404, answer: 'Error try find cart' };
+                return { ok: false, error: 'Error try find cart' };
             }
         } else {
             const cartUpdated = await cartsModel.findById(cid).populate('products.product')
             if (!cartUpdated) {
-                return { status: 404, answer: 'Error try find cart' };
+                return { ok: false, error: 'Error try update cart' };
             }
-            return { status: 404, error: 'Cart empty', answer: cartUpdated };
+            return { ok: false, error: 'This cart is empty', answer: cartUpdated };
         }
     }
 
     async deleteProductSelectedCart(cid, pid) {
-
         const product = await productsModel.findById(pid);
         const cart = await cartsModel.findById(cid);
 

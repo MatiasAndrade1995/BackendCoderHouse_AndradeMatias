@@ -7,7 +7,7 @@ const creatCartController = async (req, res) => {
     try {
         const newCart = await cartService.createCart(body)
         req.logger.info(newCart)
-        res.status(200).send(newCart)
+        res.status(201).send(newCart)
     } catch (error) {
         res.status(404).send({ error: 'Error trying create Cart' })
     }
@@ -36,9 +36,11 @@ const getCartId = async (req, res) => {
     const cid = req.user.cartID
     try {
         const cart = await cartService.getCartId(cid)
+        if (cart.ok == false) return res.status(404).send(cart.error)
         res.status(200).send(cart)
     } catch(error) {
         req.logger.error(error)
+        res.status(500).send('Internal error')
     }
 }
 
@@ -56,7 +58,7 @@ const getProductsInCartIdController = async (req, res) => {
             cartID: req.user.cartID
         });
     } catch (error) {
-        res.status(404).send({ error: 'Error try found Users cart' })
+        res.status(500).send({ error: 'Error trying to find cart' })
     }
 }
 
@@ -77,9 +79,10 @@ const deleteProductsCartController = async (req, res) => {
     const {cid} = req.params;
     try {
         const cartEmpty = await cartService.deleteProductsCart(cid)
-        res.status(cartEmpty.status).send(cartService.answer)
+        if (cartEmpty.ok == false) return res.status(404).send(cartEmpty.error)
+        res.status(201).send(cartEmpty.answer)
     } catch (error) {
-        res.status(500).send({ error: 'Server error' });
+        res.status(500).send('Internal error');
     }
 };
 

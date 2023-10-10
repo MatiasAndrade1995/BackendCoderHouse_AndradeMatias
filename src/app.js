@@ -17,7 +17,7 @@ const swaggerOptions = {
     definition: {
         openapi: '3.0.1',
         info: {
-            title: 'Documentación API My Comerce',
+            title: 'Documentación API My Comerce by Andrade Matias',
             description: 'Documentación para modulos productos y carrito',
         }
     },

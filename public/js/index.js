@@ -166,7 +166,6 @@ function deleteProductCart(pid) {
 function deleteAllProductCart(pid) {
     let cartID = document.querySelector('#userEmail').getAttribute('data-cartid');
     console.log(`Trying delete product in Cart : ${cartID}`)
-
     fetch(`/api/carts/${cartID}`, {
         method: 'DELETE'
     })

@@ -114,21 +114,21 @@ paths:
               $type: String
         responses:
           "201":
-            description: 'Product deleted...'
+            description:  Product deleted...
           "403":
-            description: 'User with email ${req.user.email} is not premium'
-          "404_ProductNotExists":
-            description: 'The product with ID ${pid} doesn t exist'
-          "404_ErrorDeleting":
-            description: 'Error trying to delete product'
+            description:  User with email ${req.user.email} is not premium
+          "404_NotExists":
+            description:  The product with ID ${pid} doesn t exist
+          "404_EDeleting":
+            description:  Error trying to delete product
           "404_NotFound":
-            description: 'Error product not found'
-          "404_UserNotFound":
-            description: 'Error user not found'
+            description:  Error product not found
+          "404_UsNotFound":
+            description:  Error user not found
           "404_AccessDenied":
-            description: 'Access denied for deleted product'
+            description:  Access denied for deleted product
           "500":
-            description: 'Internal error'
+            description: Internal error
 
   /api/allProducts/:
     get:
@@ -150,7 +150,7 @@ paths:
     get:
       summary: Crea 100 productos
       tags:
-        - Generate products
+        - Products
       responses:
         "200":
           description: 'Responde con un array de los productos'
@@ -162,6 +162,101 @@ paths:
                   $ref: '#components/schemas/Product'
         "500":
           description: 'Error generate products'  
+  /api/carts/:
+    get:
+      summary: Obtiene todos los carritos existentes
+      tags: 
+       - Carts
+      responses:
+        "200":
+          description: Busca todos los carritos existentes en la base de datos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#components/schemas/Cart'
+        "404":
+          description: Error trying to find carts
+    post:
+      sumarry: Crea nuevo carrito
+      tags: 
+       - Carts
+      reponses:
+        "201":
+          description: Responde con el carrito creado
+          content:
+            application/json:
+              schema:
+                  $ref: '#components/schemas/Cart'
+        "404":
+          description: Error trying create Cart
+  /api/cartid:
+    get:
+      summary: Devuelve un carrito por Id
+      tags: 
+       - Carts
+      responses:
+        "200":
+          description: Devuelve un objeto con el carrito del Usuario que tiene su respectivo Id del cart
+          content:
+            application/json:
+              schema:
+                  $ref: '#components/schemas/Cart'
+        "404":
+          description: Error trying to find cart
+  /api/carts/{cid}:
+    get:
+      summary: Obtiene un producto especifico buscado por Id
+      tags:
+        - Cart id
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: id del carrito que se desea buscar
+          schema:
+            $type: String
+      responses:
+        "200":
+          description: Devuelve el render de un objeto Cart para handlebars con todos sus campos.
+          content:
+            application/json:
+              schema:
+                  $ref: '#components/schemas/Cart'
+        "404":
+          description: Error trying to find cart
+    delete:
+      sumary: Borra todos los productos del carrito
+      tags:
+        - Cart id
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: id del carrito que se desea borrar
+          schema:
+            $type: String
+      responses:
+        "201":
+          description: Devuelve el render del carrito actualizado, sin ningun producto.
+        "404_NotFound": 
+          description: -Error trying to find cart
+        "404_NotUpdate": 
+          description: -Error trying to update
+        "404_CartEmpty": 
+          description: -This cart is empty'
+        "500":
+          description: -Internal error
+
+      
+
+
+
+
+
+
+
 components:
   schemas:
     Product:
@@ -208,6 +303,36 @@ components:
         category: "Health"
         thumbnail: "https://loremflickr.com/640/480?lock=5986278562594816"
         owner: "admin"
+    Cart:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: Id autogenerado de mongo
+        name: 
+          type: String
+          description: Nombre del carrito
+        products: 
+          type: Array
+          description: Es una array que contiene los productos del carrito
+          items:
+            type: object
+            properties:
+              product:
+                type: ObjectId
+                description: Id autogenerado de mongo
+                ref: Product
+              quantity:
+                type: integer
+                description: Cantidad del producto especifico solicitado en el carrito.
+      example:
+        _id: ObjectId("64ec369e32ce0b1889ad368b")
+        name: "Mi carrito de compras"
+        products: 
+          - product: "64e7bc2b0913af46db638888"
+            quantity: 1
+          - product: "64e7bc2b0913af46db638888"
+            quantity: 1
   requestBodies:
     updateProduct:
       type: object
