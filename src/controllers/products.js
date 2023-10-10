@@ -1,7 +1,7 @@
 const Products = require('../dao/mongodb/products.mongo')
 const fs = require('fs')
 const EErros = require('../errors/messages/errors-enum');
-const { generateProductErrorInfo, generateProductErrorInfoUnique } = require('../errors/messages/user-creation-error.message');
+const { generateProductErrorInfo} = require('../errors/messages/user-creation-error.message');
 const CustomError = require('../errors/customErrors');
 const productService = new Products()
 

@@ -18,7 +18,7 @@ paths:
     post:
       summary: Crea un producto nuevo
       tags:
-        - Creat product
+        - Product
       responses:
         "201":
           description: 'Responde con el producto creado'
@@ -52,7 +52,7 @@ paths:
     get:
       summary: Obtiene un producto especifico buscado por Id
       tags:
-        - Product id
+        - Product
       parameters:
         - name: pid
           in: path
@@ -74,7 +74,7 @@ paths:
     put:
       summary: Actualiza un producto nuevo
       tags:
-        - Update product
+        - Product
       parameters:
         - name: pid
           in: path
@@ -104,7 +104,7 @@ paths:
     delete:
         summary: Borra un producto especifico buscado por Id
         tags:
-          - Delete product id
+          - Product
         parameters:
           - name: pid
             in: path
@@ -179,10 +179,10 @@ paths:
         "404":
           description: Error trying to find carts
     post:
-      sumarry: Crea nuevo carrito
+      summary: Crea nuevo carrito
       tags: 
-       - Carts
-      reponses:
+       - Cart
+      responses:
         "201":
           description: Responde con el carrito creado
           content:
@@ -195,7 +195,7 @@ paths:
     get:
       summary: Devuelve un carrito por Id
       tags: 
-       - Carts
+       - Cart
       responses:
         "200":
           description: Devuelve un objeto con el carrito del Usuario que tiene su respectivo Id del cart
@@ -207,9 +207,9 @@ paths:
           description: Error trying to find cart
   /api/carts/{cid}:
     get:
-      summary: Obtiene un producto especifico buscado por Id
+      summary: Devuelve un carrito por Id
       tags:
-        - Cart id
+        - Cart
       parameters:
         - name: cid
           in: path
@@ -227,9 +227,9 @@ paths:
         "404":
           description: Error trying to find cart
     delete:
-      sumary: Borra todos los productos del carrito
+      summary: Borra todos los productos del carrito
       tags:
-        - Cart id
+        - Cart
       parameters:
         - name: cid
           in: path
@@ -241,13 +241,80 @@ paths:
         "201":
           description: Devuelve el render del carrito actualizado, sin ningun producto.
         "404_NotFound": 
-          description: -Error trying to find cart
+          description: Error trying to find cart
         "404_NotUpdate": 
-          description: -Error trying to update
+          description: Error trying to update
         "404_CartEmpty": 
-          description: -This cart is empty'
+          description: This cart is empty'
         "500":
-          description: -Internal error
+          description: Internal error
+  /carts/{cid}/products/{pid}:
+    put:
+      summary: Devuelve un carrito por Id
+      tags:
+        - Cart
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: Id del carrito en el que se encuentra el producto que se desea modificar
+          schema:
+            type: string
+        - name: pid
+          in: path
+          required: true
+          description: Id del producto que se desea modificar
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  default: 1
+      responses:
+        "201":
+          description: Product ${product.title} has been added to your cart
+        "404_NotProduct":
+          description: Error trying to find product
+        "404_NotCart":
+          description: Error trying to find cart
+        "404_Owner":
+          description: Error, owner cannot add a product to their own cart...
+        "500":
+          description: Internal error
+    delete:
+      summary: Devuelve el carrito actualizado sin el producto seleccionado
+      tags:
+        - Cart
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: Id del carrito en el que se encuentra el producto que se desea modificar
+          schema:
+            type: string
+        - name: pid
+          in: path
+          required: true
+          description: Id del producto que se desea sacar del carrito
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Devuelve el carrito actualizado sin el producto seleccionado
+        "404_NotProduct":
+          description: Error trying to find cart or product
+        "404_Notlength":
+          description: Not found
+        "500":
+          description: Internal error
+
+
 
       
 

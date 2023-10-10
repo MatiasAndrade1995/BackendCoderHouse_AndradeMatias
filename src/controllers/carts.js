@@ -71,7 +71,7 @@ const productsInCartController = async (req, res) => {
         const answer = await cartService.productsInCart(email, cid, pid, quantity)
         res.status(answer.status).send({ ok: answer.ok, msg: answer.msg })
     } catch (error) {
-        res.status(500).send({ok: false, msg: 'Error in server' });
+        res.status(500).send({ ok: false, msg: 'Internal error' });
     }
 };
 
@@ -92,7 +92,7 @@ const deleteProductSelectedCartController = async (req, res) => {
         const productInCartDeleted = await cartService.deleteProductSelectedCart(cid, pid);
         res.status(productInCartDeleted.status).send(productInCartDeleted.answer)
     } catch (error) {
-        res.status(500).send({ error: 'Server error' });
+        res.status(500).send({ error: 'Internal error' });
     }
 };
 
