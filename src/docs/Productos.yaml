@@ -129,7 +129,6 @@ paths:
             description:  Access denied for deleted product
           "500":
             description: Internal error
-
   /api/allProducts/:
     get:
       summary: Obtiene todos los productos
@@ -307,22 +306,42 @@ paths:
       responses:
         "201":
           description: Devuelve el carrito actualizado sin el producto seleccionado
+          content:
+            application/json:
+              schema:
+                  $ref: '#components/schemas/Cart'
         "404_NotProduct":
           description: Error trying to find cart or product
         "404_Notlength":
           description: Not found
         "500":
           description: Internal error
-
-
-
-      
-
-
-
-
-
-
+  /carts/{cid}/purchase:
+    post:
+      summary: Devuelve un carrito por Id
+      tags:
+        - Cart
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: Id del carrito con el que se va a finalizar la compra
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Devuelve el carrito vacio y el ticket de compra del mismo finalizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cart:
+                    $ref: '#components/schemas/Cart'
+                  ticket:
+                    $ref: '#components/schemas/Ticket' 
+        "500":
+          description: Error trying create ticket 
 
 components:
   schemas:
@@ -370,6 +389,24 @@ components:
         category: "Health"
         thumbnail: "https://loremflickr.com/640/480?lock=5986278562594816"
         owner: "admin"
+    Ticket:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: Id autogenerado de mongo
+        code:
+          type: String
+          description: Codigo unico de compra
+        purcharser_datetime:
+          type: Date
+          description: Fecha y hora de cuandos se realizo la compra
+        amount:
+          type: integer
+          description: Costo total de los productos solicitados en la compra
+        purcharser:
+          type: String
+          description: Mail del comprador
     Cart:
       type: object
       properties:
