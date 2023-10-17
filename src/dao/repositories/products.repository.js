@@ -8,7 +8,7 @@ const User = require('../models/users');
 const { formNewUser } = require('../../controllers/sessions');
 
 class ProductsRepository {
-    constructor() { }
+    constructor() {}
 
     async getMockingProducts() {
         try {

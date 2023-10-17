@@ -1,3 +1,5 @@
 INCIAR EN TERMINAL PARA MODO DEVELOPMENT : npm run dev 
 
 INICIAR EN TERMINAL PARA MODO PRODUCTION : npm run prod
+
+INICIAR SUPERTEST CON : npx mocha .\test\supertest.test.js

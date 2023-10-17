@@ -14,6 +14,9 @@ class MongoManager {
                 })
                 .catch(err => logger.error(err)) 
     }
+
+    
+
 }
 
 module.exports = MongoManager;

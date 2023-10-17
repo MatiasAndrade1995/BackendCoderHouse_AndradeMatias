@@ -59,7 +59,7 @@ const getProductsController = async (req, res) => {
     status == "true" ? true : false;
     let products;
     try {
-        products = await productService.createProduct(category, status, limit, sort, page, limitQueryParams, order)
+        products = await productService.paginateProducts(category, status, limit, sort, page, limitQueryParams, order)
         res.status(200).send(products)
     } catch (err) {
         res.status(500).send({ error: 'Error reading filter' });

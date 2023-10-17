@@ -35,7 +35,7 @@ const productSchema = new mongoose.Schema({
     },
     thumbnail: {
         type: String,
-        required: true
+        default: 'file'
     },
     owner: {
         type: String,

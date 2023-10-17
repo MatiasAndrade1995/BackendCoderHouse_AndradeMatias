@@ -27,7 +27,7 @@ router.get('/auth/github/callback', passport.authenticate('auth-github', { failu
     res.status(200).redirect('/api/current');
 });
 
-router.get('/recoveryPassword/', pageRecoveryPassword)
+router.get('/recoveryPassword', pageRecoveryPassword)
 router.post('/resetPassword/', decodForm, resetPassword);
 
 router.get('/forgotPassword', pageForgotPassword)
