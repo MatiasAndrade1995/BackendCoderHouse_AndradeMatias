@@ -1,7 +1,5 @@
 const dotenv = require('dotenv');
 const { Command } = require('commander');
-
-
 const program = new Command();
 
 program
@@ -17,7 +15,6 @@ if (program.opts().dev == 'development') {
 } else {
     environment = 'development'
 }
-
 
 console.log('Modo option: ' + environment)
 

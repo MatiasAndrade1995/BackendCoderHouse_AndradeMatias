@@ -25,10 +25,6 @@ const swaggerOptions = {
 }
 
 const specs = swaggerJSDoc(swaggerOptions);
-
-
-
-
 const MongoStore = require('connect-mongo')
 
 app.use(cors())
@@ -71,10 +67,8 @@ app.get('/', login)
 //Import model message
 const Message = require('./dao/models/messages')
 
-
 //Import transformDataProducts
 const {transformDataChat } = require('./utils/transformdata')
-
 
 //Socket Import
 const { Server } = require('socket.io')
@@ -86,7 +80,6 @@ app.use(express.static("public"))
 //View Dependencies
 const handlebars = require('express-handlebars')
 
-
 //Import db
 const MongoManager = require('./dao/mongodb/db.js')
 const {verifyMail} = require('./utils/nodemailer')
@@ -97,7 +90,6 @@ const classMongoDb = new MongoManager(config.urlMongo);
 app.engine('handlebars', handlebars.engine())
 app.set('view engine', 'handlebars')
 app.set('views', __dirname + '/views')
-
 
 //Connection
 io.on('connection', (socket) => {
@@ -115,91 +107,10 @@ io.on('connection', (socket) => {
     })
 })
 
+
 verifyMail()
 const PORT = config.port || 3000
 server.listen(PORT, () => {
     logger.http(`Server run on port http://localhost:${config.port}`)
     classMongoDb.connectionMongoDb()
 })
-
-// import swaggerJSDoc from 'swagger-jsdoc';
-// import swaggerUIExpress from 'swagger-ui-express'
-
-// const swaggerOptions = {
-//     definition: {
-//         openapi: "3.0.1",
-//         info: {
-//             title: "Documentacion API Adoptme",
-//             description: "Documentacion para uso de swagger"
-//         }
-//     },
-//     apis: [`./src/docs/**/*.yaml`]
-// };
-// const specs = swaggerJSDoc(swaggerOptions);
-// //Declare swagger api endpoint
-// app.use('/apidocs', swaggerUIExpress.serve, swaggerUIExpress.setup(specs));
-
-
-
-// {
-//     "first_name": "userTest_02",
-//         "last_name": "userTest_02",
-//             "email": "test@test02.com",
-//                 "password": "123qwe"
-// }
-
-
-// components:
-// schemas:
-// User:
-// type: object
-// properties:
-// _id:
-// type: ObjectId
-// description: Id autogenerado por MongoDB
-// first_name:
-// type: String
-// description: Nombre del usuario
-// last_name:
-// type: String
-// description: Apellido del usuario
-// email:
-// type: String
-// description: Email del usuario
-// password:
-// type: String
-// description: Contraseña del usuario
-// example:
-// _id: ObjectId("647fa8c9e46dbc5a20320181")
-// first_name: Usuario de prueba 1
-// last_name: Apellido de prueba 1
-// email: correodeprueba1 @gmail.com
-// password: 123456
-
-
-//     / api / users / { uid }:
-// get:
-// summary: Obtiene un usuarios disponible en la App por ID
-// tags:
-// - Users
-// parameters:
-// - name: uid
-//     in: path
-// required: true
-// description: id del usuario que se desea buscar
-// schema:
-// $type: String
-// responses:
-// "200":
-// description: La operacion fue exitosa!!
-// content:
-// application / json:
-// schema:
-// type: array
-// items:
-// $ref: '#components/schemas/User'
-
-// "400":
-// description: Se envio un dato no esperado.
-//         "500":
-// description: Error inesperado en el server, no se pudo manejar el proceso

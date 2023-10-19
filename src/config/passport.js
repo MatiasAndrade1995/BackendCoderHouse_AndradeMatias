@@ -28,7 +28,8 @@ const initializePassport = () => {
                     const data = {
                         ...userData,
                         password: hashPW,
-                        cartID: cart._id  
+                        cartID: cart._id, 
+                        last_connection: new Date()
                     };
                     let result = await User.create(data);
                     return done(null, result);
@@ -50,9 +51,10 @@ const initializePassport = () => {
         async (req, username, password, done) => {
             try {
                 const user = await User.findOne({ email: username });
-                
                 const validPassword = await compare(password, user.password);
                 if (validPassword) {
+                    user.last_connection = new Date();
+                    await user.save();
                     return done(null, user);
                 } else {
                     return done(null, false, { message: 'Password error...' });
@@ -84,12 +86,14 @@ const initializePassport = () => {
                             email: `${profile._json.login}@github.com.ar`,
                             age: 2023,
                             password: hashPW,
-                            cartID: cart._id 
+                            cartID: cart._id, 
+                            last_connection : new Date()
                         };
                         let result = await User.create(newUser);
-
                         done(null, result);
                     } else {
+                        user.last_connection = new Date(); 
+                        await user.save()
                         done(null, user);
                     }
                 } catch (error) {

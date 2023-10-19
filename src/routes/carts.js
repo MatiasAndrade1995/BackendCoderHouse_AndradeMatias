@@ -5,12 +5,12 @@ const { productsInCartController, creatCartController, getCartsController, delet
 const { authloginsession, isUserMiddleware } = require('../controllers/sessions')
 
 router.get("/carts", getCartsController)
-router.post("/carts", creatCartController)
+router.post("/carts", authloginsession, creatCartController)
 router.get("/cartid", getCartId)
 router.get("/carts/:cid", getProductsInCartIdController)
-router.delete("/carts/:cid", deleteProductsCartController)
-router.put("/carts/:cid/products/:pid", productsInCartController)
-router.delete("/carts/:cid/products/:pid",deleteProductSelectedCartController)
+router.delete("/carts/:cid", authloginsession, isUserMiddleware, deleteProductsCartController)
+router.put("/carts/:cid/products/:pid", authloginsession, isUserMiddleware, productsInCartController)
+router.delete("/carts/:cid/products/:pid", authloginsession, isUserMiddleware, deleteProductSelectedCartController)
 router.post("/carts/:cid/purchase", purchaseCart)
 
 module.exports = router

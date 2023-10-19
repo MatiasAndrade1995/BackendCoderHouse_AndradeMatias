@@ -55,6 +55,7 @@ async function authloginsession(req, res, next) {
 }
 
 const login = async (req, res) => {
+    
     try {
         if (req.isAuthenticated()) {
             res.redirect('/api/current');
@@ -108,19 +109,35 @@ const isUserMiddleware = (req, res, next) => {
 };
 
 const changeRol = async (req, res) => {
-    const uid = req.params.uid
+    const uid = req.params.uid;
     try {
-        const user = await User.findById(uid); 
+        const user = await User.findById(uid);
+
         if (!user) {
-            return res.status(404).send('User not found'); 
+            return res.status(404).send('User not found');
         }
-        if (user.rol.includes('user')) {
-            user.rol = 'premium';
-        } else {
+
+        if (user.rol.includes('premium')) {
+            // Si el usuario es "premium," cambiarlo a "user" sin necesidad de verificar documentos
             user.rol = 'user';
+            const updatedUser = await user.save();
+            res.status(201).send(`Rol has been changed to ${updatedUser.rol}`);
+        } else if (user.rol.includes('user')) {
+            // Verifica si el usuario tiene los tres documentos necesarios
+            const hasRequiredDocuments = ['identification', 'proofOfAddress', 'accountStatement'].every(requiredDoc => {
+                return user.documents.some(doc => doc.name === requiredDoc);
+            });
+
+            if (hasRequiredDocuments) {
+                user.rol = 'premium';
+                const updatedUser = await user.save();
+                res.status(201).send(`Rol has been changed to ${updatedUser.rol}`);
+            } else {
+                res.status(400).send('User does not have all three required documents');
+            }
+        } else {
+            res.status(400).send('User is neither "user" nor "premium"');
         }
-        const updatedUser = await user.save();
-        res.status(201).send(`Rol has been changed to ${updatedUser.rol}`);
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Internal server error');
@@ -128,18 +145,26 @@ const changeRol = async (req, res) => {
 };
 
 
+
+
 const logout = async (req, res) => {
-
+    const email = req.user.email;
     try {
-        await req.session.destroy()
-        res.clearCookie('connect.sid').redirect('/api');
-
+        const user = await User.findOne({ email }); 
+        if (!user) {
+            throw new Error('Failed to logout');
+        }
+        user.last_connection = new Date(); 
+        await user.save()
+        await req.session.destroy();
+        res.clearCookie('connect.sid');
+        res.redirect('/api');
     } catch (err) {
-        res.send(err) || res.send('Failed to logout')
-
+        res.status(500).send(err.message || 'Failed to logout'); 
     }
-
 }
+
+
 
 const pageForgotPassword = async (req, res) => {
     res.render('forgotpass')
@@ -197,6 +222,59 @@ const resetPassword = async (req, res) => {
 }
 
 
+const documents = async (req, res) => {
+    const { uid } = req.params;
+    const files = req.files;
+
+    if (!files) return res.status(404).send('No files');
+
+    try {
+        const user = await User.findOne({ _id: uid });
+
+        if (!user) return res.status(404).send('User not found');
+
+        const imageProductFileName = req.files['imageProduct'] ? req.files['imageProduct'][0].filename : null;
+        const identificationFileName = req.files['identification'] ? req.files['identification'][0].filename : null;
+        const proofOfAddressFileName = req.files['proofOfAddress'] ? req.files['proofOfAddress'][0].filename : null;
+        const accountStatementFileName = req.files['accountStatement'] ? req.files['accountStatement'][0].filename : null;
+        const imageProfileFileName = req.files['imageProfile'] ? req.files['imageProfile'][0].filename : null;
+
+
+        const baseUrl = `http://${req.get('host')}/storage/products/`;
+
+        const documentsToPush = [];
+
+        if (imageProductFileName) {
+            documentsToPush.push({ name: 'imageProduct', reference: baseUrl + imageProductFileName });
+        }
+
+        if (identificationFileName) {
+            documentsToPush.push({ name: 'identification', reference: baseUrl + identificationFileName });
+        }
+
+        if (proofOfAddressFileName) {
+            documentsToPush.push({ name: 'proofOfAddress', reference: baseUrl + proofOfAddressFileName });
+        }
+
+        if (accountStatementFileName) {
+            documentsToPush.push({ name: 'accountStatement', reference: baseUrl + accountStatementFileName });
+        }
+
+        if (imageProfileFileName) {
+            documentsToPush.push({ name: 'imageProfile', reference: baseUrl + imageProfileFileName });
+        }
+
+        user.documents.push(...documentsToPush);
+
+        await user.save();
+
+        res.status(201).send({ messagge: 'Charge files succesfully', data: documentsToPush });
+
+    } catch (error) {
+        res.status(500).send('Error in documents controller');
+    }
+}
+
 module.exports = {
     login,
     formNewUser,
@@ -211,5 +289,6 @@ module.exports = {
     resetPassword,
     mailRecoverPass,
     pageForgotPassword,
-    changeRol
+    changeRol,
+    documents
 }
