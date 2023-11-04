@@ -13,7 +13,7 @@ class Products {
             let res = await fs.promises.readFile(this.path, 'utf-8')
             return JSON.parse(res);
         } catch (res) {
-            console.log(`Error try Read... ${JSON.stringify(this.#products, null, 2)} ------ Array empty`)
+            logger.error(`Error try Read... ${JSON.stringify(this.#products, null, 2)} ------ Array empty`)
             try {
                 await fs.promises.writeFile(this.path, JSON.stringify(this.#products, null, 2), 'utf-8')
                 console.log("File create")

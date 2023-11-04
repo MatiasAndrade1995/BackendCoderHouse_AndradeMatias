@@ -1,0 +1,39 @@
+<div class="container">
+    <h1 class="text-center mt-3">Users</h1>
+    <div class="text-center">
+        {{#if hasUsers}}
+        {{#each users}}
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-center align-items-center mb-5">
+                    <h5 style="margin-right: 20px;">{{this.email}}</h5>
+                    <h5 class="text-muted">{{this.rol}}</h5>
+                </div>
+                <div class="row d-flex justify-content-center align-items-center">
+                    <form action="/api/users/{{this.id}}" method="POST"
+                        class="col-6 d-flex justify-content-around align-items-center">
+                        <label for="roleSelect" class="col-4 col-lg-2">Select new role:</label>
+                        <div class="col-md-auto">
+                            <select id="roleSelect" name="newRole" class="form-control">
+                                <option value="user">User</option>
+                                <option value="premium">Premium</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary col-4 col-lg-2" type="submit">Change Role</button>
+                    </form>
+                        <button class="btn btn-danger col-3 w-25" type="submit"  onclick="deleteUser('{{this.id}}')">Delete
+                            User</button>
+
+                </div>
+            </div>
+        </div>
+        {{/each}}
+        {{else}}
+        <h2>No users found...</h2>
+        {{/if}}
+    </div>
+</div>
+
+
+<script src="/js/index.js"></script>

@@ -1,9 +1,9 @@
-const UserDTO = require('../dao/dto/users.dto');
-const User = require('../dao/models/users')
+const UserDTO = require('../services/dto/users.dto');
+const User = require('../services/dao/models/users')
 const EErros = require('../errors/messages/errors-enum');
 const { generateUserErrorInfo } = require('../errors/messages/user-creation-error.message');
 const CustomError = require('../errors/customErrors');
-const { recoveryPass } = require('../utils/nodemailer');
+const { recoveryPass, deleteAcountMail } = require('../utils/nodemailer');
 const { verifyToken } = require('../config/jwt');
 const { hashPassword, compare } = require('../utils/handlePassword');
 
@@ -55,7 +55,6 @@ async function authloginsession(req, res, next) {
 }
 
 const login = async (req, res) => {
-    
     try {
         if (req.isAuthenticated()) {
             res.redirect('/api/current');
@@ -108,7 +107,7 @@ const isUserMiddleware = (req, res, next) => {
     }
 };
 
-const changeRol = async (req, res) => {
+const userChangeRoleController = async (req, res) => {
     const uid = req.params.uid;
     try {
         const user = await User.findById(uid);
@@ -172,7 +171,6 @@ const pageForgotPassword = async (req, res) => {
 
 const pageRecoveryPassword = async (req, res) => {
     const token = req.query.token;
-    console.log(req.query)
     res.render('recoverypass', {
         token: token
     });
@@ -181,12 +179,13 @@ const pageRecoveryPassword = async (req, res) => {
 
 const mailRecoverPass = async (req, res) => {
     const body = req.body;
+    const baseUrl = `http://${req.get('host')}`
     try {
         const user = await User.findOne({ email: body.email });
         if (!user) {
             return res.status(404).send('No existe usuario con ese correo electrónico');
         }
-        recoveryPass(body.email, res);
+        recoveryPass(body.email, baseUrl, res);
     } catch (error) {
         res.status(500).send('Error interno del servidor');
     }
@@ -240,28 +239,28 @@ const documents = async (req, res) => {
         const imageProfileFileName = req.files['imageProfile'] ? req.files['imageProfile'][0].filename : null;
 
 
-        const baseUrl = `http://${req.get('host')}/storage/products/`;
+        const baseUrl = `http://${req.get('host')}/storage/`;
 
         const documentsToPush = [];
 
         if (imageProductFileName) {
-            documentsToPush.push({ name: 'imageProduct', reference: baseUrl + imageProductFileName });
+            documentsToPush.push({ name: 'imageProduct', reference: `${baseUrl}/products/${imageProductFileName}` });
         }
 
         if (identificationFileName) {
-            documentsToPush.push({ name: 'identification', reference: baseUrl + identificationFileName });
+            documentsToPush.push({ name: 'identification', reference: `${baseUrl}/documents/${identificationFileName}` });
         }
 
         if (proofOfAddressFileName) {
-            documentsToPush.push({ name: 'proofOfAddress', reference: baseUrl + proofOfAddressFileName });
+            documentsToPush.push({ name: 'proofOfAddress', reference: `${baseUrl}/documents/${proofOfAddressFileName}` });
         }
 
         if (accountStatementFileName) {
-            documentsToPush.push({ name: 'accountStatement', reference: baseUrl + accountStatementFileName });
+            documentsToPush.push({ name: 'accountStatement', reference: `${baseUrl}/documents/${accountStatementFileName}` });
         }
 
         if (imageProfileFileName) {
-            documentsToPush.push({ name: 'imageProfile', reference: baseUrl + imageProfileFileName });
+            documentsToPush.push({ name: 'imageProfile', reference: `${baseUrl}/profiles/${imageProfileFileName}` });
         }
 
         user.documents.push(...documentsToPush);
@@ -272,6 +271,93 @@ const documents = async (req, res) => {
 
     } catch (error) {
         res.status(500).send('Error in documents controller');
+    }
+}
+
+
+const getUsers = async (req, res) => {
+    try {
+        const users = await User.find(); 
+
+        if (!users) {
+            return res.status(404).send('No se encontraron usuarios'); 
+        }
+
+        const usersData = users.map(user => ({
+            first_name: user.first_name,
+            last_name: user.last_name,
+            age: user.age,
+            email: user.email,
+            rol: user.rol
+        }));
+
+        res.status(200).send(usersData); 
+
+    } catch (error) {
+        console.error(error); // Registra el error en la consola para su depuración
+        res.status(500).send('Error en el controlador de getUsers');
+    }
+}
+
+const usersHandlebars = async (req, res) => {
+    try {
+        const users = await User.find({ rol: { $in: ['user', 'premium'] } })    
+        const usersData = users.map(user => ({
+            id: user._id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            age: user.age,
+            email: user.email,
+            rol: user.rol
+        }));
+        res.status(200).render('paneladministrador', {
+            users: usersData,
+            hasUsers: usersData.length > 0  // true si hay usuarios, false si no hay usuarios
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error en el controlador de getUsers');
+    }
+}
+
+
+const deleteUsers = async (req, res) => {
+    try {
+        const twoDaysAgo = new Date();
+        twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+        const usersMails = await User.find({ last_connection: { $lt: twoDaysAgo } });
+        for (const user of usersMails) {
+            await deleteAcountMail(user.email);
+        }
+        await User.deleteMany({ last_connection: { $lt: twoDaysAgo } });
+        res.status(201).send('Usuarios eliminados con éxito');
+    } catch (error) {
+        res.status(500).send('Error en el controlador deleteUsers');
+    }
+}
+
+const adminChangeRoleController = async (req, res) => {
+    const { newRole } = req.body
+    const { uid } = req.params
+    try {
+        const user = await User.findByIdAndUpdate(uid, {
+            rol: newRole
+        }, { new: true })
+        if (!user) return res.status(404).send('No se pudo modificar usuario')
+        res.status(302).redirect('/api/users/admin');
+    } catch (error) {
+        res.status(500).send('Error en el controlador adminChangeRoleController')
+    }
+}
+
+const adminChangeDeleteController = async (req, res) => {
+    const { uid } = req.params
+    try {
+        const user = await User.findByIdAndDelete(uid)
+        if (!user) return res.status(404).send('No se pudo eliminar usuario')
+        res.status(201).send('Usuario eliminado')
+    } catch (error) {
+        res.status(500).send('Error en el controlador adminChangeRoleController')
     }
 }
 
@@ -289,6 +375,11 @@ module.exports = {
     resetPassword,
     mailRecoverPass,
     pageForgotPassword,
-    changeRol,
-    documents
+    userChangeRoleController,
+    documents,
+    getUsers,
+    deleteUsers,
+    adminChangeRoleController,
+    adminChangeDeleteController,
+    usersHandlebars
 }

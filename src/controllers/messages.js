@@ -1,4 +1,4 @@
-const Message = require('../dao/models/messages');
+const Message = require('../services/dao/models/messages');
 const { transformDataChat } = require('../utils/transformdata');
 
 const getMessages = async (req, res) => {

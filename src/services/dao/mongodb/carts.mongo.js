@@ -1,47 +1,52 @@
+//Models 
 const cartsModel = require('../models/cart')
-const ticketsModel = require('../models/tickets')
-const CartDTO = require('../dto/carts.dto')
 const productsModel = require('../models/products')
 const usersModel = require('../models/users')
-const { transformDataCart } = require('../../utils/transformdata');
+const ticketsModel = require('../models/tickets')
+//Transformdata Cart
+const { transformDataCart } = require('../../../utils/transformdata');
+//UUID
 const uuid = require('uuid');
-const User = require('../models/users')
+//LoggerCustom
+const { logger } = require('../../../config/loggerCustom');
 
-class CartsRepository {
-    constructor() { }
-
-    async createCart(body) {
-        const cartdto = new CartDTO(body);
-        const newCart = await cartsModel.create(cartdto)
-        if (!newCart) return { status: 404, answer: 'Error trying to create cart' }
-        return newCart;
+class CartsMongo {
+    constructor() { 
+        logger.info("Working carts with Database persistence in mongodb");
+    }
+    createCart = async (cartdto) => {
+        const result = await cartsModel.create(cartdto)
+        if (!result) return { ok: false, status: 404, error: 'Error trying to create cart' }
+        return result;
     }
 
-    async getCart() {
-        const carts = await cartsModel.find()
-        if (!carts) return { status: 404, answer: 'Error trying to find carts' };
-        return  { status: 200, answer: carts };
+    getCart = async () => {
+        const result = await cartsModel.find()
+        if (!result) return {ok: false, status: 404, error: 'Error trying to find carts' };
+        return result;
     }
 
-    async getProductInCart(cid) {
-        const cartSelectedPopulated = await cartsModel.findById(cid).populate('products.product')
-        if (!cartSelectedPopulated) return { status: 404, answer: 'Error trying to find cart' };
-        return JSON.stringify(cartSelectedPopulated, null, '\t');
+    getProductInCart = async (cid) => {
+        const result = await cartsModel.findById(cid).populate('products.product')
+        if (!result) return {ok: false, error: 'Error trying to find cart' };
+        return JSON.stringify(result, null, '\t');
     }
-    async getCartId(cid) {
+
+    getCartId = async (cid) => {
         const cart = await cartsModel.findById(cid)
         if (!cart) return { ok: false, error: 'Error trying to find cart' };
-        return { ok: true, cart: cart  };
+        return { ok: true, cart: cart };
     }
 
-    async getProductsInCartId(cid) {
+    getProductsInCartId = async (cid) => {
         const productsInCart = await cartsModel.findById(cid).populate('products.product');
+        if (!productsInCart) return { ok: false, error: 'Error trying to find cart' };
         const { products } = productsInCart
-        const dataCartId = transformDataCart(products)
-        return dataCartId;
+        const result = transformDataCart(products)
+        return result;
     }
 
-    async productsInCart(email, cid, pid, quantity) {
+    addProductsInCart = async (email, cid, pid, quantity) => {
         const product = await productsModel.findById(pid);
         const productOwner = product.owner;
         if (email !== productOwner) {
@@ -65,7 +70,7 @@ class CartsRepository {
                     if (!cartUpdated) {
                         return { ok: false, status: 404, msg: 'Error trying to find cart' };
                     }
-                    return { ok: true, status: 201, msg: `Product ${product.title} has been add in your cart`};
+                    return { ok: true, status: 201, msg: `Product ${product.title} has been add in your cart` };
                 } else {
                     cart.products.push({ product: product._id, quantity: quantity });
                     await cart.save();
@@ -77,15 +82,14 @@ class CartsRepository {
                 }
             } else {
                 return { ok: false, status: 404, msg: 'Error trying to find product' };
-            }  
+            }
         } else {
             return { ok: false, status: 404, msg: `Error, owner can not add product in his cart...` };
         }
-        
+
     }
 
-
-    async deleteProductsCart(cid) {
+    deleteProductsCart = async (cid) => {
         const cart = await cartsModel.findById(cid);
         if (!cart) {
             return { ok: false, error: 'Error trying to find cart' };
@@ -111,7 +115,7 @@ class CartsRepository {
         }
     }
 
-    async deleteProductSelectedCart(cid, pid) {
+    deleteProductSelectedCart = async (cid, pid) => {
         const product = await productsModel.findById(pid);
         const cart = await cartsModel.findById(cid);
 
@@ -122,7 +126,6 @@ class CartsRepository {
                 cart.products.splice(productInCartIndex, 1);
                 await cart.save();
                 const cartUpdated = await cartsModel.findById(cid).populate('products.product')
-
                 return { status: 201, answer: cartUpdated };
 
             } else {
@@ -135,76 +138,73 @@ class CartsRepository {
         }
     }
 
+    purchaseCart = async (cid) => {
+            const user = await usersModel.findOne({ cartID: cid }).populate('cartID');
 
-
-
-    async purchaseCart(cid) {
-        const user = await usersModel.findOne({ cartID: cid }).populate('cartID');
-
-        if (!user) {
-            throw new Error('User not found');
-        }
-
-        const cart = await cartsModel.findById(cid).populate('products.product');
-
-        if (!cart) {
-            throw new Error('Cart not found');
-        }
-
-        let totalAmount = 0; 
-
-        const productsToProcess = [];
-        const productsNotProcessed = [];
-
-        cart.products.forEach(cartProduct => {
-            const product = cartProduct.product;
-            const requestedQuantity = cartProduct.quantity;
-
-            if (product.stock >= requestedQuantity) {
-                productsToProcess.push({
-                    product: product,
-                    quantity: requestedQuantity
-                });
-
-                totalAmount += product.price * requestedQuantity; 
-            } else {
-                productsNotProcessed.push({
-                    product: product,
-                    requestedQuantity: requestedQuantity,
-                    availableStock: product.stock
-                });
+            if (!user) {
+                return { ok: false, error: 'User not found' };
             }
-        });
 
-        cart.products = productsNotProcessed.map(item => ({
-            product: item.product,
-            quantity: item.requestedQuantity
-        }));
+            const cart = await cartsModel.findById(cid).populate('products.product');
 
-        await cart.save();
+            if (!cart) {
+                return { ok: false, error: 'Cart not found' };
+            }
 
-        const code = uuid.v4();
-        const purchaser_datetime = new Date();
+            let totalAmount = 0;
 
-        const ticket = await ticketsModel.create({
-            code: code,
-            purchaser_datetime: purchaser_datetime,
-            amount: totalAmount,
-            purchaser: user.email
-        });
+            const productsToProcess = [];
+            const productsNotProcessed = [];
 
-        if (!ticket) {
-            throw new Error('Error trying create ticket');
-        }
+            cart.products.forEach(cartProduct => {
+                const product = cartProduct.product;
+                const requestedQuantity = cartProduct.quantity;
 
-        return [
-            ticket,
-            cart
-        ];
+                if (product.stock >= requestedQuantity) {
+                    productsToProcess.push({
+                        product: product,
+                        quantity: requestedQuantity
+                    });
+                    totalAmount += product.price * requestedQuantity;
+                } else {
+                    productsNotProcessed.push({
+                        product: product,
+                        requestedQuantity: requestedQuantity,
+                        availableStock: product.stock
+                    });
+                }
+            });
+
+            cart.products = productsNotProcessed.map(item => ({
+                product: item.product,
+                quantity: item.requestedQuantity
+            }));
+
+            if (productsToProcess.length <= 0) {
+                return { ok: false , error: 'Cart is empty'};
+            }
+            await cart.save();
+
+            const code = uuid.v4();
+            const purchaser_datetime = new Date();
+           
+            const ticket = await ticketsModel.create({
+                code: code,
+                purchaser_datetime: purchaser_datetime,
+                amount: totalAmount,
+                purchaser: user.email
+            });
+
+            if (!ticket) {
+                return { ok: false, error: 'Error trying create ticket' };
+            }
+
+            return [
+                ticket,
+                cart
+            ];
     }
-
 
 }
 
-
-module.exports = CartsRepository;
+module.exports = CartsMongo;

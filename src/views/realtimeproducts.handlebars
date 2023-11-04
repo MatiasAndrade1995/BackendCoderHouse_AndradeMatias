@@ -28,7 +28,7 @@
         <div class="col-3">
             <h4 class="text-center">Form for add new product</h4>
             <p id="message"></p>
-            <form class="mb-3" id="formAddProduct" onsubmit="handlesubmit(event)">
+            <form class="mb-3" id="formAddProduct" onsubmit="handlesubmit(event)" enctype="multipart/form-data">
                 <label for="newProductName" class="form-label mb-3">New Product</label>
                 <input type="text" class="form-control mb-2" id="newProductName" name="inputProductTitle"
                     placeholder="Insert new products name...">
@@ -56,7 +56,7 @@
                     placeholder="Insert new products stock...">
                 <input type="text" class="form-control mb-2" id="newProductCategory" name="inputProductCategory"
                     placeholder="Insert new products category...">
-                <input type="file" name="inputFile" />
+                <input type="file" name="imageProduct" />
                 <input type="submit" class="btn btn-primary mt-3" value="Send"></input>
             </form>
         </div>

@@ -1,12 +1,18 @@
+//Import dependecies
 const passport = require('passport')
 const config = require('../config')
+//Strategys
 const LocalStrategy = require('passport-local').Strategy
 const GitHubStrategy = require('passport-github2').Strategy
-const User = require('../dao/models/users')
+//Model
+const User = require('../services/dao/models/users')
+//HashPassword
 const { hashPassword, compare } = require('../utils/handlePassword');
-const Carts = require("../dao/mongodb/carts.mongo");
-const cartService = new Carts()
-
+//Cart Service
+const { cartService } = require('../services/repository/services');
+//Cart DTO
+const CartDTO = require('../services/dto/carts.dto')
+//Passport
 const initializePassport = () => {
     passport.use(
         'register',
@@ -18,9 +24,9 @@ const initializePassport = () => {
             async (req, username, password, done) => {
                 try {
                     let userData = req.body;
+                    // const cartdto = new CartDTO(body);
                     let user = await User.findOne({ email: username });
                     if (user) {
-                        console.log('User already exists');
                         return done(null, false, { message: 'User already exists' });
                     }
                     const hashPW = await hashPassword(password);

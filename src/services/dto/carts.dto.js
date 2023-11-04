@@ -1,3 +1,5 @@
+const { logger } = require("../../config/loggerCustom");
+
 class CartDTO {
     constructor(cart) {
         if (cart) {

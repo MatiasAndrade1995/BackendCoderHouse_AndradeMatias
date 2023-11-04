@@ -6,7 +6,7 @@ const { describe } = require('node:test')
 
 //Mongo
 const mongoose = require('mongoose');
-const MongoManager = require('../../src/dao/mongodb/db');
+const MongoManager = require('../../src/services/dao/mongodb/db');
 const classMongoDb = new MongoManager(config.urlMongo);
 classMongoDb.connectionMongoDb()
 

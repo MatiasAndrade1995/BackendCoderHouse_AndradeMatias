@@ -97,7 +97,7 @@ const sendEmailWithImages = (req, res, email) => {
 };
 
 
-const recoveryPass = (email, res) => {
+const recoveryPass = (email, baseUrl, res) => {
     try {
         const token = generateToken(email);
         const to = email;
@@ -105,7 +105,7 @@ const recoveryPass = (email, res) => {
             return res.status(400).send({ message: 'Falta la dirección de correo electrónico del destinatario' });
         }
 
-        const resetPasswordUrl = `http://localhost:8080/api/recoveryPassword?token=${token}`;
+        const resetPasswordUrl = `${baseUrl}/api/recoveryPassword?token=${token}`;
 
         const mailOptions = {
             from: 'Bot de recuperación de contraseña',
@@ -130,6 +130,67 @@ const recoveryPass = (email, res) => {
     }
 };
 
+const deleteAcountMail = (email) => {
+    try {  
+        const to = email
+
+        if (!to) {
+            return res.status(400).send({ message: 'Falta la dirección de correo electrónico del destinatario' });
+        }
+
+        const mailOptions = {
+            from: 'Bot de eliminación de cuenta',
+            to,
+            subject: 'Cuenta eliminada',
+            html: `<div><h1>Hola, soy bot de eliminación de cuenta!!!</h1>
+            <p>Su cuenta ha sido eliminada por inactividad</button></p>
+            </div>`
+        };
+
+        const result = transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                logger.error(error);
+                res.status(400).send({ message: 'Error', payload: error });
+            }
+            logger.info('Mensaje enviado: %s', info.messageId);
+            res.send('Mail enviado');
+        });
+    } catch (error) {
+        logger.error(error);
+        res.status(500).send({ error, message: 'Error al intentar enviar el correo desde ' + config.mail });
+    }
+};
+
+const deleteProductMail = (email) => {
+    try {  
+        const to = email
+        if (!to) {
+            return res.status(400).send({ message: 'Falta la dirección de correo electrónico del destinatario' });
+        }
+
+        const mailOptions = {
+            from: 'Bot de eliminación de producto',
+            to,
+            subject: 'Producto eliminado',
+            html: `<div><h1>Hola, soy bot de eliminación de productos!!!</h1>
+            <p>Su producto ha sido eliminado</button></p>
+            </div>`
+        };
+
+        const result = transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                logger.error(error);
+                res.status(400).send({ message: 'Error', payload: error });
+            }
+            logger.info('Mensaje enviado: %s', info.messageId);
+            res.send('Mail enviado');
+        });
+    } catch (error) {
+        logger.error(error);
+        res.status(500).send({ error, message: 'Error al intentar enviar el correo desde ' + config.mail });
+    }
+};
 
 
-module.exports = { verifyMail, sendEmail, sendEmailWithImages, recoveryPass }
+
+module.exports = { verifyMail, sendEmail, sendEmailWithImages, recoveryPass, deleteAcountMail, deleteProductMail }

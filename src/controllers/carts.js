@@ -1,37 +1,50 @@
-const Carts = require("../dao/mongodb/carts.mongo");
+//Cart DTO
+const CartDTO = require('../services/dto/carts.dto')
+//Cart Service
+const { cartService } = require('../services/repository/services');
+//LoggerCustom
+const { logger } = require('../../src/config/loggerCustom');
 
-const cartService = new Carts()
-
+//Create 
 const creatCartController = async (req, res) => {
     const body = req.body
     try {
-        const newCart = await cartService.createCart(body)
-        req.logger.info(newCart)
-        res.status(201).send(newCart)
+        const cartdto = new CartDTO(body);
+        const result = await cartService.createCart(cartdto)
+        if (result == ok) {
+        logger.info(result)
+        return res.status(201).send(result)    
+        }
+        return res.status(404).send(result.error)
     } catch (error) {
         res.status(404).send({ error: 'Error trying create Cart' })
     }
 }
 
+//Read carts
 const getCartsController = async (req, res) => {
     try {
         const carts = await cartService.getCart()
+        if(result.ok == false) return res.status(404).send(result.error)
         res.status(200).send(carts)
     } catch (error) {
-        res.status(404).send(error)
+        res.status(500).send(error)
     }
 }
 
+//Read products in cart
 const getProductsInCartController = async (req, res) => {
     const { cid } = req.params
     try {
-        const cartSelectedPopulated = await cartService.getProductInCart(cid)
-        res.status(200).send(cartSelectedPopulated)
+        const result = await cartService.getProductInCart(cid)
+        if(result.ok == false) return res.status(404).send(result.error)
+        res.status(200).send(result)
     } catch (error) {
         res.status(404).send({ error: 'Error trying create User' })
     }
 }
 
+//Read user´s cart
 const getCartId = async (req, res) => {
     const cid = req.user.cartID
     try {
@@ -45,10 +58,12 @@ const getCartId = async (req, res) => {
 }
 
 
+//Render products in cart
 const getProductsInCartIdController = async (req, res) => {
     const { cid } = req.params
     try {
         const dataCartId = await cartService.getProductsInCartId(cid);
+        if (dataCartId.ok == false) return res.status(404).send(dataCartId.error)
         res.status(200).render('cartid', {
             productsCart: dataCartId,
             email: req.user.email,
@@ -58,23 +73,24 @@ const getProductsInCartIdController = async (req, res) => {
             cartID: req.user.cartID
         });
     } catch (error) {
-        res.status(500).send({ error: 'Error trying to find cart' })
+        res.status(500).send('Internal error')
     }
 }
 
-
-const productsInCartController = async (req, res) => {
+//Add products in Cart
+const addProductsInCartController = async (req, res) => {
     const { cid, pid } = req.params;
     const { quantity } = req.body;
     const email = req.user.email;
     try {
-        const answer = await cartService.productsInCart(email, cid, pid, quantity)
+        const answer = await cartService.addProductsInCart(email, cid, pid, quantity)
         res.status(answer.status).send({ ok: answer.ok, msg: answer.msg })
     } catch (error) {
         res.status(500).send({ ok: false, msg: 'Internal error' });
     }
 };
 
+//Delete products in Cart
 const deleteProductsCartController = async (req, res) => {
     const {cid} = req.params;
     try {
@@ -86,6 +102,7 @@ const deleteProductsCartController = async (req, res) => {
     }
 };
 
+//Delete product selected in Cart
 const deleteProductSelectedCartController = async (req, res) => {
     const { cid, pid } = req.params;
     try {
@@ -100,10 +117,11 @@ const purchaseCart = async (req, res) => {
     const { cid } = req.params;
     try {
         const result = await cartService.purchaseCart(cid);
-        res.status(201).send(result)
+        if(result.ok == false) return res.status(404).json({error:result.error})
+        res.status(201).send(result);
     } catch (error) {
-        res.status(500).send({error: error})
+        res.status(500).send('Internal error');
     }
 }
 
-module.exports = { creatCartController, getCartsController, getProductsInCartController, productsInCartController, deleteProductsCartController, deleteProductSelectedCartController, getProductsInCartIdController, getCartId, purchaseCart };
+module.exports = { creatCartController, getCartsController, getProductsInCartController, addProductsInCartController, deleteProductsCartController, deleteProductSelectedCartController, getProductsInCartIdController, getCartId, purchaseCart };

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { logger } = require('../../config/loggerCustom');
+const { logger } = require('../../../config/loggerCustom');
 
 class MongoManager {
 

@@ -70,20 +70,15 @@ let logger;
 
 if (config.environment === "production") {
     logger = productLogger
-    // req.logger.info(`Prueba de log level info en produccion - ${req.method} en ${req.url} - at ${new Date().toLocaleDateString()} - ${new Date().toLocaleDateString()}`)
 } else {
-    logger = devLogger
-    // req.logger.debug(`Prueba de log level debug en desarrollo - ${req.method} en ${req.url} - at ${new Date().toLocaleDateString()} - ${new Date().toLocaleDateString()}`)
+    logger = devLogger 
 }
 
 const addLogger = (req, res, next) => {
-
     if (config.environment === "production") {
         req.logger = productLogger
-        // req.logger.info(`Prueba de log level info en produccion - ${req.method} en ${req.url} - at ${new Date().toLocaleDateString()} - ${new Date().toLocaleDateString()}`)
     } else {
         req.logger = devLogger
-        // req.logger.debug(`Prueba de log level debug en desarrollo - ${req.method} en ${req.url} - at ${new Date().toLocaleDateString()} - ${new Date().toLocaleDateString()}`)
     }
 
     next()

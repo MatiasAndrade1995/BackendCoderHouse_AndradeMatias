@@ -17,3 +17,10 @@ error: undefined
 error: undefined
 error: undefined
 error: undefined
+error: undefined
+error: undefined
+error: undefined
+error: undefined {"address":"2800:3f0:4003:c00::6c","code":"ESOCKET","command":"CONN","errno":-4062,"port":465,"syscall":"connect"}
+error: undefined {"address":"2800:3f0:4003:c00::6c","code":"ESOCKET","command":"CONN","errno":-4062,"port":465,"syscall":"connect"}
+error: undefined {"code":"EENVELOPE","command":"API"}
+error: undefined
