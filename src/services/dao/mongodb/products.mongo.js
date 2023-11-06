@@ -124,12 +124,15 @@ class ProductsMongo {
 
         const productDeleted = await productsModel.findByIdAndDelete(pid);
 
+
         if (!productDeleted) {
             return { ok: false, status: 400, error: `Error trying delete product` };
         }
 
-        //Send mail owner product about delete
-        await deleteProductMail(productOwner)
+        //Send mail if is not a admin
+        if (!user.rol.includes('admin')) {
+            deleteProductMail(productOwner)
+        }
 
         if (product.thumbnail !== 'file') {
             const nameFile = product.thumbnail.split("/").pop();

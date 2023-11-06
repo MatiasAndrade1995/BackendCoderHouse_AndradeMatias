@@ -7,6 +7,8 @@ const { recoveryPass, deleteAcountMail } = require('../utils/nodemailer');
 const { verifyToken } = require('../config/jwt');
 const { hashPassword, compare } = require('../utils/handlePassword');
 
+
+//Valida campos para el registro de nuevo usuario
 const validateFieldsRegister = (req, res, next) => {
     try {
         const { first_name, last_name, email, age, password } = req.body
@@ -74,6 +76,7 @@ const errorRegister = (req, res) => {
     res.status(404).render('errorregister')
 }
 
+//Data para profile
 const dataCurrent = async (req, res) => {
     const userDTO = new UserDTO({
         first_name: req.user.first_name,
@@ -107,6 +110,7 @@ const isUserMiddleware = (req, res, next) => {
     }
 };
 
+//Controlador para que el usuario pueda cambiar de rol sin cargo los documentos requeridos
 const userChangeRoleController = async (req, res) => {
     const uid = req.params.uid;
     try {
@@ -145,7 +149,7 @@ const userChangeRoleController = async (req, res) => {
 
 
 
-
+//Cierra session actual
 const logout = async (req, res) => {
     const email = req.user.email;
     try {
@@ -165,6 +169,7 @@ const logout = async (req, res) => {
 
 
 
+
 const pageForgotPassword = async (req, res) => {
     res.render('forgotpass')
 }
@@ -176,7 +181,7 @@ const pageRecoveryPassword = async (req, res) => {
     });
 };
 
-
+//Mail para recuperar password
 const mailRecoverPass = async (req, res) => {
     const body = req.body;
     const baseUrl = `http://${req.get('host')}`
@@ -191,7 +196,7 @@ const mailRecoverPass = async (req, res) => {
     }
 }
 
-
+//Controlador para cambiar password
 const resetPassword = async (req, res) => {
     const newPassword = req.body.password;
     const token = req.query.token;;
@@ -220,7 +225,7 @@ const resetPassword = async (req, res) => {
     }
 }
 
-
+//Se encarga del manejo de las urls de los archivos que se cargan en el db
 const documents = async (req, res) => {
     const { uid } = req.params;
     const files = req.files;
@@ -274,7 +279,7 @@ const documents = async (req, res) => {
     }
 }
 
-
+//Captura todos los usuarios
 const getUsers = async (req, res) => {
     try {
         const users = await User.find(); 
@@ -294,11 +299,12 @@ const getUsers = async (req, res) => {
         res.status(200).send(usersData); 
 
     } catch (error) {
-        console.error(error); // Registra el error en la consola para su depuración
+        console.error(error); 
         res.status(500).send('Error en el controlador de getUsers');
     }
 }
 
+//Captura si hay users y users premium
 const usersHandlebars = async (req, res) => {
     try {
         const users = await User.find({ rol: { $in: ['user', 'premium'] } })    
@@ -320,7 +326,7 @@ const usersHandlebars = async (req, res) => {
     }
 }
 
-
+//Elimina usuarios inactivos de mas de 2 dias
 const deleteUsers = async (req, res) => {
     try {
         const twoDaysAgo = new Date();
@@ -336,6 +342,7 @@ const deleteUsers = async (req, res) => {
     }
 }
 
+//Controlador para que admin pueda cambiar rol de usuario
 const adminChangeRoleController = async (req, res) => {
     const { newRole } = req.body
     const { uid } = req.params
@@ -350,6 +357,7 @@ const adminChangeRoleController = async (req, res) => {
     }
 }
 
+//Controlador para que admin pueda eliminar usuario
 const adminChangeDeleteController = async (req, res) => {
     const { uid } = req.params
     try {

@@ -103,6 +103,7 @@ const getProductsControllerView = async (req, res) => {
         res.status(500).send({ error: "Internal error" });
     }
 };
+
 //Read products without paginate and render
 const getProductsControllerWithoutPaginate = async (req, res) => {
     try {
@@ -150,8 +151,7 @@ const updateProductController = async (req, res) => {
 //Delete
 const deleteProductController = async (req, res) => {
     const { pid } = req.params;
-    const email = 'matiasandrade.unla@gmail.com'
-    // const email = req.user.email;
+    const email = req.user.email;
     try {
         const result = await productService.deleteProductById(pid, email);
         if (result.ok == true) {

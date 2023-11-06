@@ -68,7 +68,7 @@ async function captureValueId() {
         });
         const resDeletedData = await resDeleted.json()
         if (!resDeletedData.ok) {
-            throw new Error(resDeletedData.msg);
+            throw new Error(resDeletedData.error);
         }
         const resGetProducts = await fetch('/api/allProducts', {
             method: 'GET'
@@ -294,14 +294,3 @@ async function deleteUser(uid) {
         console.log(error);
     }
 }
-
-
-// const product = {
-//     title: form.inputProductTitle.value,
-//     description: form.inputProductDescription.value,
-//     code: form.inputProductCode.value,
-//     price: form.inputProductPrice.value,
-//     status: valueInputRadio,
-//     stock: form.inputProductStock.value,
-//     category: form.inputProductCategory.value,
-// };

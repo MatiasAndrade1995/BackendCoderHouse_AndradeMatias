@@ -32,7 +32,7 @@ const sendEmail = (req, res) => {
         }
 
         const mailOptions = {
-            from: 'Tu Nombre', // Remitente (cambia "Tu Nombre" por tu nombre o el nombre deseado)
+            from: 'Tu Nombre', // Remitente 
             to,
             subject: 'Demo de correo electrónico',
             html: '<div><h1>Hola, soy Matías Andrade enviando un correo con Nodemailer!!!</h1></div>'
@@ -53,9 +53,7 @@ const sendEmail = (req, res) => {
     }
 };
 
-
-
-
+//Mail con imagenes
 const sendEmailWithImages = (req, res, email) => {
     try {
         const { to } = email;
@@ -96,7 +94,7 @@ const sendEmailWithImages = (req, res, email) => {
     }
 };
 
-
+//Recuperar contraseña
 const recoveryPass = (email, baseUrl, res) => {
     try {
         const token = generateToken(email);
@@ -130,6 +128,7 @@ const recoveryPass = (email, baseUrl, res) => {
     }
 };
 
+//Envia mail para avisar que se borro su couenta por inactividad
 const deleteAcountMail = (email) => {
     try {  
         const to = email
@@ -155,17 +154,20 @@ const deleteAcountMail = (email) => {
             logger.info('Mensaje enviado: %s', info.messageId);
             res.send('Mail enviado');
         });
+
     } catch (error) {
         logger.error(error);
         res.status(500).send({ error, message: 'Error al intentar enviar el correo desde ' + config.mail });
     }
 };
 
+
+//Avisa al owner que su producto fue eliminado
 const deleteProductMail = (email) => {
     try {  
         const to = email
         if (!to) {
-            return res.status(400).send({ message: 'Falta la dirección de correo electrónico del destinatario' });
+            logger.error('Falta la dirección de correo electrónico del destinatario');
         }
 
         const mailOptions = {
@@ -178,16 +180,16 @@ const deleteProductMail = (email) => {
         };
 
         const result = transporter.sendMail(mailOptions, (error, info) => {
+            
             if (error) {
                 logger.error(error);
-                res.status(400).send({ message: 'Error', payload: error });
+                return { error: 'Error', payload: error };
             }
             logger.info('Mensaje enviado: %s', info.messageId);
-            res.send('Mail enviado');
         });
     } catch (error) {
         logger.error(error);
-        res.status(500).send({ error, message: 'Error al intentar enviar el correo desde ' + config.mail });
+        logger.error('Error al intentar enviar el correo desde ' + config.mail);
     }
 };
 
