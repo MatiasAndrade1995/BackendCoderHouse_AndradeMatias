@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const {uploadFiles } = require('../utils/multer')
 
-const { getProductsControllerWithoutPaginate, getProductController, createProductController, updateProductController, deleteProductController, getProductsControllerRealTime, getProductsControllerView, getMockingProducts, validateFieldsProduct, categories, getProductsController } = require('../controllers/products')
+const { getProductsControllerWithoutPaginate, getProductController, createProductController, updateProductController, deleteProductController, getProductsControllerRealTime, getProductsControllerView, getMockingProducts, validateFieldsProduct, categories, getProductsController, updateStockTo200 } = require('../controllers/products')
 const { authloginsession, isAdminMiddleware, isUserMiddleware,  } = require('../controllers/sessions')
 
 router.get("/products", authloginsession, isUserMiddleware, getProductsControllerView)
@@ -16,5 +16,7 @@ router.put("/products/:pid", uploadFiles, updateProductController)
 router.delete("/products/:pid",  deleteProductController) 
 router.get("/categories", categories)
 router.get("/productsTest/:pid", getProductController)
+router.get("/updateStockTo200", updateStockTo200)
+
 
 module.exports = router;

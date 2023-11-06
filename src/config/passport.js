@@ -57,6 +57,7 @@ const initializePassport = () => {
         async (req, username, password, done) => {
             try {
                 const user = await User.findOne({ email: username });
+                if (!user) return done(null, false, { message: 'User not found' });
                 const validPassword = await compare(password, user.password);
                 if (validPassword) {
                     user.last_connection = new Date();

@@ -240,6 +240,25 @@ const categories = async (req, res) => {
     }
 }
 
+const productsModel = require('../services/dao/models/products');
+
+const updateStockTo200 = async (req, res) => {
+    try {
+        
+        const products = await productsModel.find({});
+        
+        for (const product of products) {
+            product.stock = 200;
+            await product.save();
+        }
+        res.status(201).send('Stock updated successfully');
+    } catch (error) {
+        res.status(500).send('Internal error')
+    }
+};
+
+
+
 
 module.exports = {
     getProductsControllerWithoutPaginate,
@@ -252,5 +271,6 @@ module.exports = {
     getProductsControllerView,
     getMockingProducts,
     validateFieldsProduct,
-    categories
+    categories,
+    updateStockTo200
 }
