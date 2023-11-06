@@ -11,11 +11,11 @@ const creatCartController = async (req, res) => {
     try {
         const cartdto = new CartDTO(body);
         const result = await cartService.createCart(cartdto)
-        if (result == ok) {
-        logger.info(result)
-        return res.status(201).send(result)    
-        }
+        if (result.ok == false) {
         return res.status(404).send(result.error)
+        }
+        logger.info(result)
+        return res.status(201).send(result)  
     } catch (error) {
         res.status(404).send({ error: 'Error trying create Cart' })
     }
@@ -24,9 +24,9 @@ const creatCartController = async (req, res) => {
 //Read carts
 const getCartsController = async (req, res) => {
     try {
-        const carts = await cartService.getCart()
-        if(result.ok == false) return res.status(404).send(result.error)
-        res.status(200).send(carts)
+        const result = await cartService.getCart()
+        if (result.ok == false) return res.status(404).send(result.error)
+        res.status(200).send(result)
     } catch (error) {
         res.status(500).send(error)
     }

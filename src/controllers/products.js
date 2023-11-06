@@ -24,7 +24,7 @@ const createProductController = async (req, res) => {
     const body = req.body;
     const file = req.files;
     const email = req.user.email
-    const filename = file.imageProduct[0].filename;
+    const filename = file && file.imageProduct && file.imageProduct[0] ? file.imageProduct[0].filename : 'file';
     const baseUrl = `http://${req.get('host')}/storage/products`;
     const productDto = new ProductDTO(body);
     try {
@@ -61,7 +61,7 @@ const getProductsController = async (req, res) => {
         }
         res.status(200).send(products)
     } catch (err) {
-        res.status(500).send({ error: "Internal error" });
+        res.status(500).send(err);
     }
 };
 
@@ -120,7 +120,7 @@ const updateProductController = async (req, res) => {
     const body = req.body;
     const file = req.files; 
     const baseUrl = `http://${req.get('host')}/storage/products`;
-    const filename = file.imageProduct[0].filename;
+    const filename = file && file.imageProduct && file.imageProduct[0] ? file.imageProduct[0].filename : 'file';
     try {
         if (!file) return res.status(404).send('No files');
         const dataReplace = {
